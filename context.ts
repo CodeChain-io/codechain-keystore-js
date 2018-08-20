@@ -12,7 +12,7 @@ export interface Context {
 
 export async function createContext(): Promise<Context> {
     const db = await new Promise<sqlite3.Database>((resolve, reject) => {
-        const dbFileName = process.env.NODE_ENV === "production" ? "faucet.db" : ":memory:";
+        const dbFileName = process.env.NODE_ENV === "production" ? "keystore.db" : ":memory:";
         const newDB = new database(dbFileName, (err: Error) => {
             if (err) { reject(err); return; }
             resolve(newDB);
