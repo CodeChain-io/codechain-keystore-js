@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Context } from "../context";
-import { getKeys, createKey } from "../model/keys";
+import { getKeys, createKey, deleteKey } from "../model/keys";
 
 export function createRouter(context: Context) {
     const router = express.Router();
@@ -23,9 +23,13 @@ export function createRouter(context: Context) {
         });
     });
 
-    router.post("/key/:key/remove", async (req, res) => {
+    router.post("/keys/:key/remove", async (req, res) => {
+        const { key } = req.params;
+        const { passphrase = "" } = req.body;
+        const result = await deleteKey(context, { publicKey: key, passphrase });
         res.json({
-            message: "NotImplementedYet"
+            success: true,
+            result
         });
     });
 
