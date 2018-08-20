@@ -1,8 +1,9 @@
 import { Context } from "context";
 import { asyncRun, asyncGetAll, asyncGet } from "./util";
-import { generatePrivateKey, getPublicFromPrivate } from "codechain-sdk/lib/utils";
+import { generatePrivateKey, getPublicFromPrivate, signEcdsa } from "codechain-sdk/lib/utils";
 import { encrypt, decrypt } from "../logic/crypto";
 import * as _ from "lodash";
+import { KeystoreError, ErrorCode } from "../logic/error";
 
 interface Key {
     encryptedPrivateKey: string;
@@ -64,4 +65,16 @@ async function removeKey(context: Context, params: { publicKey: string }): Promi
     await asyncRun(context.db, "DELETE FROM keys WHERE publicKey=$publicKey", {
         $publicKey: params.publicKey
     });
+}
+
+export async function signKey(context: Context, params: { publicKey: string, message: string, passphrase: string }): Promise<string> {
+    const key = await getKey(context, params);
+    if (key === null) {
+        throw new KeystoreError(ErrorCode.KeyNotExist, null);
+    }
+
+    const privateKey = decrypt(key.encryptedPrivateKey, params.passphrase);
+    const { r, s, v } = signEcdsa(params.message, privateKey);
+    const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(v.toString(16), 2, "0")}`;
+    return sig;
 }

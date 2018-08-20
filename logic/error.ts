@@ -1,5 +1,7 @@
 export enum ErrorCode {
     Unknown = 0,
+    KeyNotExist = 1,
+    DecryptionFailed = 2,
 }
 
 export class KeystoreError extends Error {
@@ -13,7 +15,7 @@ export class KeystoreError extends Error {
         super(ErrorCode[code]);
         this.code = code;
         this.codeName = ErrorCode[code];
-        this.name = "FaucetError";
+        this.name = "KeystoreError";
         this.internal = internal;
         this.internalString = String(internal);
     }

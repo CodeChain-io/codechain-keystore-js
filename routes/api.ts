@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Context } from "../context";
-import { getKeys, createKey, deleteKey } from "../model/keys";
+import { getKeys, createKey, deleteKey, signKey } from "../model/keys";
 
 export function createRouter(context: Context) {
     const router = express.Router();
@@ -33,10 +33,21 @@ export function createRouter(context: Context) {
         });
     });
 
-    router.post("/key/:key/sign", async (req, res) => {
-        res.json({
-            message: "NotImplementedYet"
-        });
+    router.post("/keys/:key/sign", async (req, res) => {
+        try {
+            const { key } = req.params;
+            const { message, passphrase = "" } = req.body;
+            const result = await signKey(context, { publicKey: key, passphrase, message });
+            res.json({
+                success: true,
+                result
+            });
+        } catch (e) {
+            res.json({
+                success: false,
+                error: e
+            });
+        }
     });
 
     router.post("/pubkeyhashes", async (req, res) => {

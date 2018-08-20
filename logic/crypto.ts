@@ -24,6 +24,7 @@ import * as crypto from "crypto";
 import { blake256, getPublicFromPrivate } from "codechain-sdk/lib/utils";
 import { AssetTransferAddress } from "codechain-sdk/lib/key/classes";
 import { H256 } from "codechain-sdk/lib/core/H256";
+import { KeystoreError, ErrorCode } from "./error";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
 export function encrypt(privateKey: string, passphrase: string): string {
@@ -69,7 +70,7 @@ export function decrypt(encryptedText: string, passphrase: string): string {
     const ciphertext = Buffer.from(json.crypto.ciphertext, "hex");
     const mac = blake256(Buffer.concat([derivedKey.slice(16, 32), ciphertext]));
     if (mac !== json.crypto.mac) {
-        throw new Error("Key derivation failed - possibly wrong passphrase");
+        throw new KeystoreError(ErrorCode.DecryptionFailed, null);
     }
     const decipher = crypto.createDecipheriv(json.crypto.cipher, derivedKey.slice(0, 16), Buffer.from(json.crypto.cipherparams.iv, "hex"));
     const privateKey = decipherBuffer(decipher, ciphertext);
