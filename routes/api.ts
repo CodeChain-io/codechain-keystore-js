@@ -1,12 +1,16 @@
 import * as express from "express";
 import { Context } from "../context";
+import { getKeys } from "../model/keys";
 
 export function createRouter(context: Context) {
     const router = express.Router();
 
     router.get("/keys", async (req, res) => {
+        const keys = await getKeys(context);
+
         res.json({
-            message: "NotImplementedYet"
+            success: true,
+            result: keys
         });
     });
 
