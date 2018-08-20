@@ -1,6 +1,7 @@
 import * as express from "express";
 import { Context } from "../context";
 import { getKeys, createKey, deleteKey, signKey } from "../model/keys";
+import { insertPKH, getPKH } from "../model/pkhs";
 
 export function createRouter(context: Context) {
     const router = express.Router();
@@ -50,15 +51,21 @@ export function createRouter(context: Context) {
         }
     });
 
-    router.post("/pubkeyhashes", async (req, res) => {
+    router.post("/pkhs", async (req, res) => {
+        const { publicKey } = req.body;
+        const hash = await insertPKH(context, { publicKey });
         res.json({
-            message: "NotImplementedYet"
+            success: true,
+            result: hash
         });
     });
 
-    router.get("/pubkeyhashes/:hash", async (req, res) => {
+    router.get("/pkhs/:hash", async (req, res) => {
+        const { hash } = req.params;
+        const publicKey = await getPKH(context, { hash });
         res.json({
-            message: "NotImplementedYet"
+            success: true,
+            result: publicKey
         });
     });
 
