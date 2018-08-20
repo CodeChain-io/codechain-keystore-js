@@ -10,6 +10,20 @@ interface Key {
     publicKey: string;
 }
 
+export async function health(context: Context): Promise<void> {
+    try {
+        const result = await asyncGet<{ num: number }>(context.db, "SELECT 1 as num", {});
+        if (result === null || result.num !== 1) {
+            throw new KeystoreError(ErrorCode.DBError, null);
+        }
+    } catch (err) {
+        if (err.name !== "KeystoreError") {
+            throw new KeystoreError(ErrorCode.DBError, err);
+        }
+        throw err;
+    }
+}
+
 export async function getKeys(context: Context): Promise<string[]> {
     const rows = await asyncGetAll<{ publicKey: string }>(context.db, "SELECT publicKey FROM keys", {});
     if (rows === null) {

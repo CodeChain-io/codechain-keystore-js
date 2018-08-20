@@ -5,6 +5,7 @@ import * as logger from "morgan";
 const morganBody = require("morgan-body");
 
 import { createRouter as createApiRouter } from "./routes/api";
+import { createRouter as createPingRouter } from "./routes/ping";
 import { createContext, Context } from "./context";
 
 export async function createApp(): Promise<[express.Application, Context]> {
@@ -21,6 +22,7 @@ export async function createApp(): Promise<[express.Application, Context]> {
 
     const context = await createContext();
     app.use("/api", createApiRouter(context));
+    app.use("/ping", createPingRouter(context));
 
     // catch 404 and forward to error handler
     app.use((req, res, next) => {
