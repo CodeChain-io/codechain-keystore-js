@@ -1,6 +1,6 @@
 import * as express from "express";
 import { Context } from "../context";
-import { getKeys } from "../model/keys";
+import { getKeys, createKey } from "../model/keys";
 
 export function createRouter(context: Context) {
     const router = express.Router();
@@ -15,8 +15,11 @@ export function createRouter(context: Context) {
     });
 
     router.post("/keys", async (req, res) => {
+        const { passphrase } = req.body;
+        const publicKey = await createKey(context, { passphrase });
         res.json({
-            message: "NotImplementedYet"
+            success: true,
+            result: publicKey
         });
     });
 
