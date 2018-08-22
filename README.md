@@ -11,10 +11,10 @@ var CCKey = require('codechain-keystore');
 
 async function example() {
   const cckey = await CCKey.create();
-  const savedKeys = await cckey.getKeys();
+  const savedKeys = await cckey.platform.getKeys();
   console.dir(savedKeys);
-  await cckey.createKey({ passphrase: "my password" });
-  const savedKeys_ = await cckey.getKeys();
+  await cckey.platform.createKey({ passphrase: "my password" });
+  const savedKeys_ = await cckey.platform.getKeys();
   console.dir(savedKeys_);
 
   await await cckey.close();

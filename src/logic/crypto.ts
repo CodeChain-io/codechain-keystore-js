@@ -21,9 +21,7 @@
 // SOFTWARE.
 
 import * as crypto from "crypto";
-import { blake256, getPublicFromPrivate } from "codechain-sdk/lib/utils";
-import { AssetTransferAddress } from "codechain-sdk/lib/key/classes";
-import { H256 } from "codechain-sdk/lib/core/H256";
+import { blake256 } from "codechain-sdk/lib/utils";
 import { KeystoreError, ErrorCode } from "./error";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
@@ -45,11 +43,7 @@ export function encrypt(privateKey: string, passphrase: string): string {
 
     const mac = blake256(Buffer.concat([derivedKey.slice(16, 32), Buffer.from(ciphertext, 'hex')]))
 
-    const publicKey = getPublicFromPrivate(privateKey);
-    const address = AssetTransferAddress.fromPublicKeyHash(new H256(blake256(publicKey)));
-
     return JSON.stringify({
-        address: address.toString(),
         crypto: {
             ciphertext: ciphertext.toString("hex"),
             cipherparams: {
