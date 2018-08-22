@@ -1,4 +1,4 @@
-import { Context } from "context";
+import { Context } from "../context";
 import { asyncRun, asyncGetAll, asyncGet } from "./util";
 import { generatePrivateKey, getPublicFromPrivate, signEcdsa } from "codechain-sdk/lib/utils";
 import { encrypt, decrypt } from "../logic/crypto";
