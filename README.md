@@ -1,7 +1,7 @@
-Codechain keystore
+CodeChain keystore
 ===================
 
-Codechain keystore is a private key management library. It saves CodeChain's asset transfer address safely in a disk. If you want to manage CodeChain keys using nodejs, you should use this.
+CodeChain keystore is a private key management library. It saves CodeChain's asset transfer address safely in a disk. If you want to manage CodeChain keys using nodejs, you should use this.
 
 Example
 -----------
