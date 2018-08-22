@@ -18,9 +18,9 @@ publicKey TEXT
 )`, {});
 
     await asyncRun(db,
-        `CREATE TABLE IF NOT EXISTS pkhs (
+        `CREATE TABLE IF NOT EXISTS mapping (
 id INTEGER PRIMARY KEY ASC,
-hash TEXT,
-publicKey TEXT
+key TEXT,
+value TEXT
 )`, {});
 }

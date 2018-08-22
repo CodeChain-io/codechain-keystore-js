@@ -1,6 +1,6 @@
 import { Context, createContext, closeContext } from "./context";
 import { getKeys, createKey, deleteKey, sign, KeyType } from "./model/keys";
-import { insertPKH, getPKH } from "./model/pkhs";
+import { addMapping, getMapping } from "./model/mapping";
 
 class CCKey {
     public static CCKey = CCKey;
@@ -49,13 +49,13 @@ class CCKey {
         }
     }
 
-    public pkh = {
-        insertPKH: (params: { publicKey: string }) => {
-            return insertPKH(this.context, params);
+    public mapping = {
+        add: (params: { key: string; value: string }) => {
+            return addMapping(this.context, params);
         },
 
-        getPKH: (params: { hash: string }) => {
-            return getPKH(this.context, params);
+        get: (params: { key: string }) => {
+            return getMapping(this.context, params);
         }
     }
 
