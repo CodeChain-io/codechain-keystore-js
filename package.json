@@ -4,6 +4,7 @@
   "author": "CodeChain Team <codechain@kodebox.io>",
   "license": "ISC",
   "scripts": {
+    "lint": "tsfmt --verify",
     "build": "tsc -p .",
     "fmt": "tsfmt"
   },
