@@ -1,21 +1,27 @@
 Codechain keystore
 ===================
 
-Codechain keystore is a private key management server. It saves CodeChain's asset transfer address safely in a disk. You should use this keystore to save your private key safely in CodeChain-SDK.
+Codechain keystore is a private key management library. It saves CodeChain's asset transfer address safely in a disk. If you want to manage CodeChain keys using nodejs, you should use this.
 
-Install
---------
+Example
+-----------
 
-Run `yarn install`
+```js
+var CCKey = require('codechain-keystore');
 
-Run `yarn pm2 install typescript`
+async function example() {
+  const cckey = await CCKey.create();
+  const savedKeys = await cckey.getKeys();
+  console.dir(savedKeys);
+  await cckey.createKey({ passphrase: "my password" });
+  const savedKeys_ = await cckey.getKeys();
+  console.dir(savedKeys_);
 
-Run `yarn pm2 install pm2-logrotate`
+  await await cckey.close();
+};
+example();
 
-Run
---------
-
-Run `yarn pm2 start ecosystem.config.js`
+```
 
 How your private key is saved
 -------------------
