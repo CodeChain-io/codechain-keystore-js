@@ -7,7 +7,7 @@ class CCKey {
 
     public static async create(params: {
         useMemoryDB?: boolean
-    }): Promise<CCKey> {
+    } = {}): Promise<CCKey> {
         const useMemoryDB = params.useMemoryDB || false;
         const context = await createContext({ useMemoryDB });
         return new CCKey(context);
