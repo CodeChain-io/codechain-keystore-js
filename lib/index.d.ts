@@ -33,12 +33,13 @@ declare class CCKey {
             passphrase: string;
         }) => Promise<string>;
     };
-    pkh: {
-        insertPKH: (params: {
-            publicKey: string;
-        }) => Promise<string>;
-        getPKH: (params: {
-            hash: string;
+    mapping: {
+        add: (params: {
+            key: string;
+            value: string;
+        }) => Promise<void>;
+        get: (params: {
+            key: string;
         }) => Promise<string | null>;
     };
     private context;
