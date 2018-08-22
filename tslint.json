@@ -13,8 +13,7 @@
     "linterOptions": {
         "exclude": [
             "dist/**/*.js",
-            "node_modules/**/*.ts",
-            "public/javascripts/lib/*.js"
+            "node_modules/**/*.ts"
         ]
     }
 }
