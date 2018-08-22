@@ -1,5 +1,5 @@
 import { Context, createContext, closeContext } from "./context";
-import { getKeys, createKey, deleteKey, signKey, KeyType } from "./model/keys";
+import { getKeys, createKey, deleteKey, sign, KeyType } from "./model/keys";
 import { insertPKH, getPKH } from "./model/pkhs";
 
 class CCKey {
@@ -26,8 +26,8 @@ class CCKey {
             return deleteKey(this.context, { ...params, keyType: KeyType.Platform });
         },
 
-        signKey: (params: { publicKey: string, message: string, passphrase: string }) => {
-            return signKey(this.context, { ...params, keyType: KeyType.Platform });
+        sign: (params: { publicKey: string, message: string, passphrase: string }) => {
+            return sign(this.context, { ...params, keyType: KeyType.Platform });
         }
     }
 
@@ -44,8 +44,8 @@ class CCKey {
             return deleteKey(this.context, { ...params, keyType: KeyType.Asset });
         },
 
-        signKey: (params: { publicKey: string, message: string, passphrase: string }) => {
-            return signKey(this.context, { ...params, keyType: KeyType.Asset });
+        sign: (params: { publicKey: string, message: string, passphrase: string }) => {
+            return sign(this.context, { ...params, keyType: KeyType.Asset });
         }
     }
 

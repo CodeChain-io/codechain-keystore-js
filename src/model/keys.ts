@@ -97,7 +97,7 @@ async function removeKey(context: Context, params: { publicKey: string, keyType:
     });
 }
 
-export async function signKey(context: Context, params: { publicKey: string, message: string, passphrase: string, keyType: KeyType }): Promise<string> {
+export async function sign(context: Context, params: { publicKey: string, message: string, passphrase: string, keyType: KeyType }): Promise<string> {
     const key = await getKey(context, params);
     if (key === null) {
         throw new KeystoreError(ErrorCode.KeyNotExist, null);
