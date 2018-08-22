@@ -2,7 +2,7 @@
   "name": "faucet",
   "version": "0.0.0",
   "author": "CodeChain Team <codechain@kodebox.io>",
-  "license": "Apache-2.0",
+  "license": "ISC",
   "scripts": {
     "start": "ts-node ./bin/www.ts"
   },
