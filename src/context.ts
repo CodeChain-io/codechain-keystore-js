@@ -10,9 +10,9 @@ export interface Context {
     db: sqlite3.Database;
 }
 
-export async function createContext(params: { useMemoryDB: boolean }): Promise<Context> {
+export async function createContext(params: { useMemoryDB: boolean, dbPath: string }): Promise<Context> {
     const db = await new Promise<sqlite3.Database>((resolve, reject) => {
-        const dbFileName = params.useMemoryDB ? ":memory:" : "keystore.db";
+        const dbFileName = params.useMemoryDB ? ":memory:" : params.dbPath;
         const newDB = new database(dbFileName, (err: Error) => {
             if (err) { reject(err); return; }
             resolve(newDB);
