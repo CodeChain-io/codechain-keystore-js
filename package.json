@@ -10,7 +10,7 @@
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
   "files": [
-      "lib"
+    "lib"
   ],
   "dependencies": {
     "codechain-sdk": "^0.1.0-alpha.18",

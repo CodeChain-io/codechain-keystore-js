@@ -11,14 +11,14 @@ publicKey TEXT
 )`, {});
 
     await asyncRun(db,
-    `CREATE TABLE IF NOT EXISTS asset_keys (
+        `CREATE TABLE IF NOT EXISTS asset_keys (
 id INTEGER PRIMARY KEY ASC,
 encryptedPrivateKey TEXT,
 publicKey TEXT
 )`, {});
 
     await asyncRun(db,
-    `CREATE TABLE IF NOT EXISTS pkhs (
+        `CREATE TABLE IF NOT EXISTS pkhs (
 id INTEGER PRIMARY KEY ASC,
 hash TEXT,
 publicKey TEXT
