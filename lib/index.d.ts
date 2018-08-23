@@ -1,38 +1,26 @@
+export interface KeyStore {
+    getKeys(): Promise<string[]>;
+    createKey(params: {
+        passphrase?: string;
+    }): Promise<string>;
+    deleteKey(params: {
+        publicKey: string;
+        passphrase: string;
+    }): Promise<boolean>;
+    sign(params: {
+        publicKey: string;
+        message: string;
+        passphrase: string;
+    }): Promise<string>;
+}
 declare class CCKey {
     static CCKey: typeof CCKey;
     static create(params?: {
         useMemoryDB?: boolean;
+        dbPath?: string;
     }): Promise<CCKey>;
-    platform: {
-        getKeys: () => Promise<string[]>;
-        createKey: (params: {
-            passphrase?: string | undefined;
-        }) => Promise<string>;
-        deleteKey: (params: {
-            publicKey: string;
-            passphrase: string;
-        }) => Promise<boolean>;
-        sign: (params: {
-            publicKey: string;
-            message: string;
-            passphrase: string;
-        }) => Promise<string>;
-    };
-    asset: {
-        getKeys: () => Promise<string[]>;
-        createKey: (params: {
-            passphrase?: string | undefined;
-        }) => Promise<string>;
-        deleteKey: (params: {
-            publicKey: string;
-            passphrase: string;
-        }) => Promise<boolean>;
-        sign: (params: {
-            publicKey: string;
-            message: string;
-            passphrase: string;
-        }) => Promise<string>;
-    };
+    platform: KeyStore;
+    asset: KeyStore;
     mapping: {
         add: (params: {
             key: string;

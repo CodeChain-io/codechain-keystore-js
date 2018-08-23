@@ -4,5 +4,6 @@ export interface Context {
 }
 export declare function createContext(params: {
     useMemoryDB: boolean;
+    dbPath: string;
 }): Promise<Context>;
 export declare function closeContext(context: Context): Promise<void>;
