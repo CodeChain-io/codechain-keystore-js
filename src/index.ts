@@ -2,18 +2,27 @@ import { Context, createContext, closeContext } from "./context";
 import { getKeys, createKey, deleteKey, sign, KeyType } from "./model/keys";
 import { addMapping, getMapping } from "./model/mapping";
 
+export interface KeyStore {
+    getKeys(): Promise<string[]>;
+    createKey(params: { passphrase?: string }): Promise<string>;
+    deleteKey(params: { publicKey: string, passphrase: string }): Promise<boolean>;
+    sign(params: { publicKey: string, message: string, passphrase: string }): Promise<string>;
+}
+
 class CCKey {
     public static CCKey = CCKey;
 
     public static async create(params: {
-        useMemoryDB?: boolean
+        useMemoryDB?: boolean,
+        dbPath?: string
     } = {}): Promise<CCKey> {
         const useMemoryDB = params.useMemoryDB || false;
-        const context = await createContext({ useMemoryDB });
+        const dbPath = params.dbPath || "keystore.db";
+        const context = await createContext({ useMemoryDB, dbPath });
         return new CCKey(context);
     }
 
-    public platform = {
+    public platform: KeyStore = {
         getKeys: () => {
             return getKeys(this.context, { keyType: KeyType.Platform });
         },
@@ -31,7 +40,7 @@ class CCKey {
         }
     }
 
-    public asset = {
+    public asset: KeyStore = {
         getKeys: () => {
             return getKeys(this.context, { keyType: KeyType.Asset });
         },
