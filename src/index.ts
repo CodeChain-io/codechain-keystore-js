@@ -5,7 +5,7 @@ import { addMapping, getMapping } from "./model/mapping";
 export interface KeyStore {
     getKeys(): Promise<string[]>;
     createKey(params: { passphrase?: string }): Promise<string>;
-    deleteKey(params: { publicKey: string, passphrase: string }): Promise<boolean>;
+    deleteKey(params: { publicKey: string }): Promise<boolean>;
     sign(params: { publicKey: string, message: string, passphrase: string }): Promise<string>;
 }
 
@@ -53,7 +53,7 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
             return createKey(context, { ...params, keyType });
         },
 
-        deleteKey: (params: { publicKey: string, passphrase: string }) => {
+        deleteKey: (params: { publicKey: string }) => {
             return deleteKey(context, { ...params, keyType });
         },
 

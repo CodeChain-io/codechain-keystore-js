@@ -29,7 +29,7 @@ test("platform.getKeys", async () => {
 test("platform.deleteKey", async () => {
     const key1 = await cckey.platform.createKey({ passphrase: "satoshi" });
     const key2 = await cckey.platform.createKey({ passphrase: "satoshi" });
-    await cckey.platform.deleteKey({ publicKey: key1, passphrase: "satoshi" });
+    await cckey.platform.deleteKey({ publicKey: key1 });
 
     const keys = await cckey.platform.getKeys();
     expect(keys).toEqual([key2]);

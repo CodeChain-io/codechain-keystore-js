@@ -65,17 +65,10 @@ async function insertKey(context: Context, encryptedPrivateKey: string, publicKe
     });
 }
 
-export async function deleteKey(context: Context, params: { publicKey: string, passphrase: string, keyType: KeyType }): Promise<boolean> {
+export async function deleteKey(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<boolean> {
     const key = await getKey(context, params);
     if (key === null) {
         console.log(`Key not found for ${params.publicKey}`);
-        return false;
-    }
-
-    try {
-        decrypt(key.encryptedPrivateKey, params.passphrase);
-    } catch (err) {
-        console.log(`Decryption failed ${err}`);
         return false;
     }
 
