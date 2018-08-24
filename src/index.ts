@@ -22,41 +22,8 @@ class CCKey {
         return new CCKey(context);
     }
 
-    public platform: KeyStore = {
-        getKeys: () => {
-            return getKeys(this.context, { keyType: KeyType.Platform });
-        },
-
-        createKey: (params: { passphrase?: string }) => {
-            return createKey(this.context, { ...params, keyType: KeyType.Platform });
-        },
-
-        deleteKey: (params: { publicKey: string, passphrase: string }) => {
-            return deleteKey(this.context, { ...params, keyType: KeyType.Platform });
-        },
-
-        sign: (params: { publicKey: string, message: string, passphrase: string }) => {
-            return sign(this.context, { ...params, keyType: KeyType.Platform });
-        }
-    }
-
-    public asset: KeyStore = {
-        getKeys: () => {
-            return getKeys(this.context, { keyType: KeyType.Asset });
-        },
-
-        createKey: (params: { passphrase?: string }) => {
-            return createKey(this.context, { ...params, keyType: KeyType.Asset });
-        },
-
-        deleteKey: (params: { publicKey: string, passphrase: string }) => {
-            return deleteKey(this.context, { ...params, keyType: KeyType.Asset });
-        },
-
-        sign: (params: { publicKey: string, message: string, passphrase: string }) => {
-            return sign(this.context, { ...params, keyType: KeyType.Asset });
-        }
-    }
+    public platform: KeyStore = createKeyStore(this.context, KeyType.Platform);
+    public asset: KeyStore = createKeyStore(this.context, KeyType.Asset);
 
     public mapping = {
         add: (params: { key: string; value: string }) => {
@@ -68,15 +35,32 @@ class CCKey {
         }
     }
 
-    private context: Context;
-
-    private constructor(context: Context) {
-        this.context = context;
+    private constructor(private context: Context) {
     }
 
     public close(): Promise<void> {
         return closeContext(this.context);
     }
+}
+
+function createKeyStore(context: Context, keyType: KeyType): KeyStore {
+    return {
+        getKeys: () => {
+            return getKeys(context, { keyType });
+        },
+
+        createKey: (params: { passphrase?: string }) => {
+            return createKey(context, { ...params, keyType });
+        },
+
+        deleteKey: (params: { publicKey: string, passphrase: string }) => {
+            return deleteKey(context, { ...params, keyType });
+        },
+
+        sign: (params: { publicKey: string, message: string, passphrase: string }) => {
+            return sign(context, { ...params, keyType });
+        }
+    };
 }
 
 export { CCKey };
