@@ -3,7 +3,6 @@ export declare enum KeyType {
     Platform = 0,
     Asset = 1
 }
-export declare function health(context: Context): Promise<void>;
 export declare function getKeys(context: Context, params: {
     keyType: KeyType;
 }): Promise<string[]>;

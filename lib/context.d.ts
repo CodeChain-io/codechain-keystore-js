@@ -1,9 +1,10 @@
-import * as sqlite3 from "sqlite3";
+import * as lowdb from "lowdb";
 export interface Context {
-    db: sqlite3.Database;
+    db: lowdb.LowdbAsync<any>;
 }
 export declare function createContext(params: {
     useMemoryDB: boolean;
     dbPath: string;
+    debug?: boolean;
 }): Promise<Context>;
 export declare function closeContext(context: Context): Promise<void>;
