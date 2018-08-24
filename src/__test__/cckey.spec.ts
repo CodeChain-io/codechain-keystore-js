@@ -34,3 +34,10 @@ test("platform.deleteKey", async () => {
     const keys = await cckey.platform.getKeys();
     expect(keys).toEqual([key2]);
 });
+
+test("mapping.add", async () => {
+    await cckey.mapping.add({ key: "satoshi", value: "nakamoto" });
+    const value = await cckey.mapping.get({ key: "satoshi" });
+
+    expect(value).toEqual("nakamoto");
+});

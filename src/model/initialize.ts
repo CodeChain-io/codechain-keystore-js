@@ -1,26 +1,9 @@
-import * as sqlite3 from "sqlite3";
-import { asyncRun } from "./util";
+import * as lowdb from "lowdb";
 
-export async function initialize(db: sqlite3.Database): Promise<void> {
-    // TODO: need index in createdAt and url
-    await asyncRun(db,
-        `CREATE TABLE IF NOT EXISTS platform_keys (
-id INTEGER PRIMARY KEY ASC,
-encryptedPrivateKey TEXT,
-publicKey TEXT
-)`, {});
-
-    await asyncRun(db,
-        `CREATE TABLE IF NOT EXISTS asset_keys (
-id INTEGER PRIMARY KEY ASC,
-encryptedPrivateKey TEXT,
-publicKey TEXT
-)`, {});
-
-    await asyncRun(db,
-        `CREATE TABLE IF NOT EXISTS mapping (
-id INTEGER PRIMARY KEY ASC,
-key TEXT,
-value TEXT
-)`, {});
+export async function initialize(db: lowdb.LowdbAsync<any>): Promise<void> {
+    await db.defaults({
+        "platform_keys": [],
+        "asset_keys": [],
+        "mapping": {}
+    }).write();
 }
