@@ -13,7 +13,6 @@ export declare function createKey(context: Context, params: {
 }): Promise<string>;
 export declare function deleteKey(context: Context, params: {
     publicKey: string;
-    passphrase: string;
     keyType: KeyType;
 }): Promise<boolean>;
 export declare function sign(context: Context, params: {

@@ -5,7 +5,6 @@ export interface KeyStore {
     }): Promise<string>;
     deleteKey(params: {
         publicKey: string;
-        passphrase: string;
     }): Promise<boolean>;
     sign(params: {
         publicKey: string;
@@ -14,6 +13,7 @@ export interface KeyStore {
     }): Promise<string>;
 }
 declare class CCKey {
+    private context;
     static CCKey: typeof CCKey;
     static create(params?: {
         useMemoryDB?: boolean;
@@ -30,7 +30,6 @@ declare class CCKey {
             key: string;
         }) => Promise<string | null>;
     };
-    private context;
     private constructor();
     close(): Promise<void>;
 }
