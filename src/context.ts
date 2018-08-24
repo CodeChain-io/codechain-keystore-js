@@ -1,23 +1,20 @@
-import * as sqlite3 from "sqlite3";
+import * as lowdb from "lowdb";
 import { initialize as dbInitialize } from "./model/initialize";
 
-let database = sqlite3.Database;
-if (process.env.NODE_ENV !== "production") {
-    database = sqlite3.verbose().Database;
+declare var window: any;
+function isBrowser() {
+    return typeof window === "undefined";
 }
+
+const persistentAdapter = isBrowser() ? require("lowdb/adapters/FileSync") : require("lowdb/adapters/LocalStorage");
 
 export interface Context {
-    db: sqlite3.Database;
+    db: lowdb.LowdbAsync<any>
 }
 
-export async function createContext(params: { useMemoryDB: boolean, dbPath: string }): Promise<Context> {
-    const db = await new Promise<sqlite3.Database>((resolve, reject) => {
-        const dbFileName = params.useMemoryDB ? ":memory:" : params.dbPath;
-        const newDB = new database(dbFileName, (err: Error) => {
-            if (err) { reject(err); return; }
-            resolve(newDB);
-        });
-    });
+export async function createContext(params: { useMemoryDB: boolean, dbPath: string, debug?: boolean }): Promise<Context> {
+    const adapter = params.useMemoryDB ? require("lowdb/adapters/Memory") : persistentAdapter;
+    const db = await lowdb(new adapter(params.dbPath));
 
     await dbInitialize(db);
 
@@ -27,13 +24,5 @@ export async function createContext(params: { useMemoryDB: boolean, dbPath: stri
 }
 
 export async function closeContext(context: Context): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-        context.db.close((err) => {
-            if (err) {
-                reject(err);
-                return;
-            }
-            resolve();
-        });
-    });
+    return Promise.resolve();
 }

@@ -1,5 +1,4 @@
 import { Context } from "../context";
-import { asyncRun, asyncGetAll, asyncGet } from "./util";
 import { generatePrivateKey, getPublicFromPrivate, signEcdsa } from "codechain-sdk/lib/utils";
 import { encrypt, decrypt } from "../logic/crypto";
 import * as _ from "lodash";
@@ -26,25 +25,8 @@ function getTableName(type: KeyType) {
     }
 }
 
-export async function health(context: Context): Promise<void> {
-    try {
-        const result = await asyncGet<{ num: number }>(context.db, "SELECT 1 as num", {});
-        if (result === null || result.num !== 1) {
-            throw new KeystoreError(ErrorCode.DBError, null);
-        }
-    } catch (err) {
-        if (err.name !== "KeystoreError") {
-            throw new KeystoreError(ErrorCode.DBError, err);
-        }
-        throw err;
-    }
-}
-
 export async function getKeys(context: Context, params: { keyType: KeyType }): Promise<string[]> {
-    const rows = await asyncGetAll<{ publicKey: string }>(context.db, `SELECT publicKey FROM ${getTableName(params.keyType)}`, {});
-    if (rows === null) {
-        return []
-    }
+    const rows: any = await context.db.get(getTableName(params.keyType)).value();
     return _.map(rows, ({ publicKey }) => publicKey);
 }
 
@@ -54,15 +36,12 @@ export async function createKey(context: Context, params: { passphrase?: string,
     const passphrase = params.passphrase || "";
 
     const encryptedPrivateKey = encrypt(privateKey, passphrase);
-    await insertKey(context, encryptedPrivateKey, publicKey, params.keyType);
+    const rows = context.db.get(getTableName(params.keyType));
+    await rows.push({
+        encryptedPrivateKey,
+        publicKey
+    }).write();
     return publicKey;
-}
-
-async function insertKey(context: Context, encryptedPrivateKey: string, publicKey: string, keyType: KeyType): Promise<void> {
-    await asyncRun(context.db, `INSERT INTO ${getTableName(keyType)} (encryptedPrivateKey, publicKey) VALUES ($encryptedPrivateKey, $publicKey)`, {
-        $encryptedPrivateKey: encryptedPrivateKey,
-        $publicKey: publicKey
-    });
 }
 
 export async function deleteKey(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<boolean> {
@@ -77,17 +56,19 @@ export async function deleteKey(context: Context, params: { publicKey: string, k
 }
 
 async function getKey(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<Key | null> {
-    const key = await asyncGet<Key>(context.db, `SELECT * FROM ${getTableName(params.keyType)} WHERE publicKey=$publicKey`, {
-        $publicKey: params.publicKey
-    });
+    const collection = context.db.get(getTableName(params.keyType));
+    const row = await collection.find({ publicKey: params.publicKey }).value();
 
-    return key;
+    if (!row) {
+        return null;
+    } else {
+        return row as Key;
+    }
 }
 
 async function removeKey(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<void> {
-    await asyncRun(context.db, `DELETE FROM ${getTableName(params.keyType)} WHERE publicKey=$publicKey`, {
-        $publicKey: params.publicKey
-    });
+    const collection = context.db.get(getTableName(params.keyType));
+    await collection.remove({ publicKey: params.publicKey }).write();
 }
 
 export async function sign(context: Context, params: { publicKey: string, message: string, passphrase: string, keyType: KeyType }): Promise<string> {
