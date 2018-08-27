@@ -9,6 +9,14 @@
     "test": "npm run lint && jest --env node",
     "fmt": "tsfmt"
   },
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/CodeChain-io/codechain-keystore.git"
+  },
+  "bugs": {
+      "url": "https://github.com/codechain-io/codechain-keystore/issues"
+  },
+  "homepage": "https://github.com/CodeChain-io/codechain-keystore#readme",
   "main": "./lib/index.js",
   "typings": "./lib/index.d.ts",
   "files": [
