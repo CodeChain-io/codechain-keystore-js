@@ -10,6 +10,12 @@ afterEach(async () => {
     cckey.close();
 });
 
+test("platform.importRaw", async () => {
+    const privateKey = "a05f81608217738d99da8fd227897b87e8890d3c9159b559c7c8bbd408e5fb6e";
+    const key = await cckey.platform.importRaw({ privateKey, passphrase: "satoshi" });
+    expect(key).toBe("0eb7cad828f1b48c97571ac5fde6add42a7f9285a204291cdc2a03007480dc70639d80c57d80ba6bb02fc2237fec1bb357e405e13b7fb8ed4f947fd8f4900abd");
+});
+
 test("platform.createKey", async () => {
     const key = await cckey.platform.createKey({ passphrase: "satoshi" });
     expect(key).toBeTruthy();

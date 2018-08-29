@@ -30,12 +30,20 @@ export async function getKeys(context: Context, params: { keyType: KeyType }): P
     return _.map(rows, ({ publicKey }) => publicKey);
 }
 
-export async function createKey(context: Context, params: { passphrase?: string, keyType: KeyType }): Promise<string> {
+export function importRaw(context: Context, params: { privateKey: string, passphrase?: string, keyType: KeyType }): Promise<string> {
+    return createKeyFromPrivateKey(context, params);
+}
+
+export function createKey(context: Context, params: { passphrase?: string, keyType: KeyType }): Promise<string> {
     const privateKey = generatePrivateKey();
-    const publicKey = getPublicFromPrivate(privateKey);
+    return createKeyFromPrivateKey(context, { ...params, privateKey });
+}
+
+async function createKeyFromPrivateKey(context: Context, params: { privateKey: string, passphrase?: string, keyType: KeyType }): Promise<string> {
+    const publicKey = getPublicFromPrivate(params.privateKey);
     const passphrase = params.passphrase || "";
 
-    const encryptedPrivateKey = encrypt(privateKey, passphrase);
+    const encryptedPrivateKey = encrypt(params.privateKey, passphrase);
     const rows = context.db.get(getTableName(params.keyType));
     await rows.push({
         encryptedPrivateKey,

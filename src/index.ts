@@ -1,9 +1,10 @@
 import { Context, createContext, closeContext } from "./context";
-import { getKeys, createKey, deleteKey, sign, KeyType } from "./model/keys";
+import { getKeys, createKey, deleteKey, sign, KeyType, importRaw } from "./model/keys";
 import { addMapping, getMapping } from "./model/mapping";
 
 export interface KeyStore {
     getKeys(): Promise<string[]>;
+    importRaw(params: { privateKey: string, passphrase?: string }): Promise<string>;
     createKey(params: { passphrase?: string }): Promise<string>;
     deleteKey(params: { publicKey: string }): Promise<boolean>;
     sign(params: { publicKey: string, message: string, passphrase: string }): Promise<string>;
@@ -47,6 +48,10 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
     return {
         getKeys: () => {
             return getKeys(context, { keyType });
+        },
+
+        importRaw: (params: { privateKey: string, passphrase?: string }) => {
+            return importRaw(context, { ...params, keyType });
         },
 
         createKey: (params: { passphrase?: string }) => {
