@@ -30,7 +30,7 @@ export async function getKeys(context: Context, params: { keyType: KeyType }): P
     return _.map(rows, ({ publicKey }) => publicKey);
 }
 
-export async function createKey(context: Context, params: { passphrase?: string, keyType: KeyType }, ): Promise<string> {
+export async function createKey(context: Context, params: { passphrase?: string, keyType: KeyType }): Promise<string> {
     const privateKey = generatePrivateKey();
     const publicKey = getPublicFromPrivate(privateKey);
     const passphrase = params.passphrase || "";
