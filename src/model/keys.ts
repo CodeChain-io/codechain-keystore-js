@@ -4,7 +4,7 @@ import { encrypt, decrypt } from "../logic/crypto";
 import * as _ from "lodash";
 import { KeystoreError, ErrorCode } from "../logic/error";
 
-interface Key {
+interface KeyPair {
     encryptedPrivateKey: string;
     publicKey: string;
 }
@@ -53,7 +53,7 @@ async function createKeyFromPrivateKey(context: Context, params: { privateKey: s
 }
 
 export async function deleteKey(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<boolean> {
-    const key = await getKey(context, params);
+    const key = await getKeyPair(context, params);
     if (key === null) {
         console.log(`Key not found for ${params.publicKey}`);
         return false;
@@ -63,14 +63,14 @@ export async function deleteKey(context: Context, params: { publicKey: string, k
     return true;
 }
 
-async function getKey(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<Key | null> {
+async function getKeyPair(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<KeyPair | null> {
     const collection = context.db.get(getTableName(params.keyType));
     const row = await collection.find({ publicKey: params.publicKey }).value();
 
     if (!row) {
         return null;
     } else {
-        return row as Key;
+        return row as KeyPair;
     }
 }
 
@@ -80,7 +80,7 @@ async function removeKey(context: Context, params: { publicKey: string, keyType:
 }
 
 export async function sign(context: Context, params: { publicKey: string, message: string, passphrase: string, keyType: KeyType }): Promise<string> {
-    const key = await getKey(context, params);
+    const key = await getKeyPair(context, params);
     if (key === null) {
         throw new KeystoreError(ErrorCode.NoSuchKey, null);
     }
