@@ -1,6 +1,6 @@
 export enum ErrorCode {
     Unknown = 0,
-    KeyNotExist = 1,
+    NoSuchKey = 1,
     DecryptionFailed = 2,
     DBError = 3,
 }
