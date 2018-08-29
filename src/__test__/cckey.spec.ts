@@ -16,6 +16,12 @@ test("platform.createKey", async () => {
     expect(key.length).toBe(128);
 });
 
+test("platform.createKey with an empty passphrase", async () => {
+    const key = await cckey.platform.createKey({ passphrase: "" });
+    expect(key).toBeTruthy();
+    expect(key.length).toBe(128);
+});
+
 test("platform.getKeys", async () => {
     let keys = await cckey.platform.getKeys();
     expect(keys.length).toBe(0);
