@@ -20,13 +20,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import * as crypto from "crypto";
 import { blake256 } from "codechain-sdk/lib/utils";
-import { KeystoreError, ErrorCode } from "./error";
+import * as crypto from "crypto";
+import { ErrorCode, KeystoreError } from "./error";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
 export function encrypt(privateKey: string, passphrase: string): string {
-
     const salt = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
 
@@ -36,12 +35,30 @@ export function encrypt(privateKey: string, passphrase: string): string {
         salt: salt.toString("hex"),
         c: 262144,
         prf: "hmac-sha256"
-    }
-    const derivedKey = crypto.pbkdf2Sync(Buffer.from(passphrase), salt, kdfparams.c, kdfparams.dklen, "sha256");
-    const cipher = crypto.createCipheriv("aes-128-ctr", derivedKey.slice(0, 16), iv);
-    const ciphertext: any = Buffer.concat([cipher.update(privateKey), cipher.final()])
+    };
+    const derivedKey = crypto.pbkdf2Sync(
+        Buffer.from(passphrase),
+        salt,
+        kdfparams.c,
+        kdfparams.dklen,
+        "sha256"
+    );
+    const cipher = crypto.createCipheriv(
+        "aes-128-ctr",
+        derivedKey.slice(0, 16),
+        iv
+    );
+    const ciphertext: any = Buffer.concat([
+        cipher.update(privateKey),
+        cipher.final()
+    ]);
 
-    const mac = blake256(Buffer.concat([derivedKey.slice(16, 32), Buffer.from(ciphertext, 'hex')]))
+    const mac = blake256(
+        Buffer.concat([
+            derivedKey.slice(16, 32),
+            Buffer.from(ciphertext, "hex")
+        ])
+    );
 
     return JSON.stringify({
         crypto: {
@@ -60,17 +77,27 @@ export function encrypt(privateKey: string, passphrase: string): string {
 export function decrypt(encryptedText: string, passphrase: string): string {
     const json = JSON.parse(encryptedText);
     const kdfparams = json.crypto.kdfparams;
-    const derivedKey = crypto.pbkdf2Sync(Buffer.from(passphrase), Buffer.from(kdfparams.salt, "hex"), kdfparams.c, kdfparams.dklen, "sha256");
+    const derivedKey = crypto.pbkdf2Sync(
+        Buffer.from(passphrase),
+        Buffer.from(kdfparams.salt, "hex"),
+        kdfparams.c,
+        kdfparams.dklen,
+        "sha256"
+    );
     const ciphertext = Buffer.from(json.crypto.ciphertext, "hex");
     const mac = blake256(Buffer.concat([derivedKey.slice(16, 32), ciphertext]));
     if (mac !== json.crypto.mac) {
         throw new KeystoreError(ErrorCode.DecryptionFailed, null);
     }
-    const decipher = crypto.createDecipheriv(json.crypto.cipher, derivedKey.slice(0, 16), Buffer.from(json.crypto.cipherparams.iv, "hex"));
+    const decipher = crypto.createDecipheriv(
+        json.crypto.cipher,
+        derivedKey.slice(0, 16),
+        Buffer.from(json.crypto.cipherparams.iv, "hex")
+    );
     const privateKey = decipherBuffer(decipher, ciphertext);
     return privateKey.toString();
 }
 
 function decipherBuffer(decipher: crypto.Decipher, data: Buffer): Buffer {
-    return Buffer.concat([decipher.update(data), decipher.final()])
+    return Buffer.concat([decipher.update(data), decipher.final()]);
 }

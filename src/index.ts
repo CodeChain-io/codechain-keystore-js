@@ -1,22 +1,38 @@
-import { Context, createContext, closeContext } from "./context";
-import { getKeys, createKey, deleteKey, sign, KeyType, importRaw } from "./model/keys";
+import { closeContext, Context, createContext } from "./context";
+import {
+    createKey,
+    deleteKey,
+    getKeys,
+    importRaw,
+    KeyType,
+    sign
+} from "./model/keys";
 import { addMapping, getMapping } from "./model/mapping";
 
 export interface KeyStore {
     getKeys(): Promise<string[]>;
-    importRaw(params: { privateKey: string, passphrase?: string }): Promise<string>;
+    importRaw(params: {
+        privateKey: string;
+        passphrase?: string;
+    }): Promise<string>;
     createKey(params: { passphrase?: string }): Promise<string>;
     deleteKey(params: { publicKey: string }): Promise<boolean>;
-    sign(params: { publicKey: string, message: string, passphrase: string }): Promise<string>;
+    sign(params: {
+        publicKey: string;
+        message: string;
+        passphrase: string;
+    }): Promise<string>;
 }
 
 class CCKey {
     public static CCKey = CCKey;
 
-    public static async create(params: {
-        useMemoryDB?: boolean,
-        dbPath?: string
-    } = {}): Promise<CCKey> {
+    public static async create(
+        params: {
+            useMemoryDB?: boolean;
+            dbPath?: string;
+        } = {}
+    ): Promise<CCKey> {
         const useMemoryDB = params.useMemoryDB || false;
         const dbPath = params.dbPath || "keystore.db";
         const context = await createContext({ useMemoryDB, dbPath });
@@ -34,10 +50,9 @@ class CCKey {
         get: (params: { key: string }) => {
             return getMapping(this.context, params);
         }
-    }
+    };
 
-    private constructor(private context: Context) {
-    }
+    private constructor(private context: Context) {}
 
     public close(): Promise<void> {
         return closeContext(this.context);
@@ -50,7 +65,7 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
             return getKeys(context, { keyType });
         },
 
-        importRaw: (params: { privateKey: string, passphrase?: string }) => {
+        importRaw: (params: { privateKey: string; passphrase?: string }) => {
             return importRaw(context, { ...params, keyType });
         },
 
@@ -62,7 +77,11 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
             return deleteKey(context, { ...params, keyType });
         },
 
-        sign: (params: { publicKey: string, message: string, passphrase: string }) => {
+        sign: (params: {
+            publicKey: string;
+            message: string;
+            passphrase: string;
+        }) => {
             return sign(context, { ...params, keyType });
         }
     };

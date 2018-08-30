@@ -2,7 +2,7 @@ export enum ErrorCode {
     Unknown = 0,
     NoSuchKey = 1,
     DecryptionFailed = 2,
-    DBError = 3,
+    DBError = 3
 }
 
 export class KeystoreError extends Error {

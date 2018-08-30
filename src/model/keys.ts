@@ -1,8 +1,12 @@
-import { Context } from "../context";
-import { generatePrivateKey, getPublicFromPrivate, signEcdsa } from "codechain-sdk/lib/utils";
-import { encrypt, decrypt } from "../logic/crypto";
+import {
+    generatePrivateKey,
+    getPublicFromPrivate,
+    signEcdsa
+} from "codechain-sdk/lib/utils";
 import * as _ from "lodash";
-import { KeystoreError, ErrorCode } from "../logic/error";
+import { Context } from "../context";
+import { decrypt, encrypt } from "../logic/crypto";
+import { ErrorCode, KeystoreError } from "../logic/error";
 
 interface KeyPair {
     encryptedPrivateKey: string;
@@ -25,34 +29,53 @@ function getTableName(type: KeyType) {
     }
 }
 
-export async function getKeys(context: Context, params: { keyType: KeyType }): Promise<string[]> {
-    const rows: any = await context.db.get(getTableName(params.keyType)).value();
+export async function getKeys(
+    context: Context,
+    params: { keyType: KeyType }
+): Promise<string[]> {
+    const rows: any = await context.db
+        .get(getTableName(params.keyType))
+        .value();
     return _.map(rows, ({ publicKey }) => publicKey);
 }
 
-export function importRaw(context: Context, params: { privateKey: string, passphrase?: string, keyType: KeyType }): Promise<string> {
+export function importRaw(
+    context: Context,
+    params: { privateKey: string; passphrase?: string; keyType: KeyType }
+): Promise<string> {
     return createKeyFromPrivateKey(context, params);
 }
 
-export function createKey(context: Context, params: { passphrase?: string, keyType: KeyType }): Promise<string> {
+export function createKey(
+    context: Context,
+    params: { passphrase?: string; keyType: KeyType }
+): Promise<string> {
     const privateKey = generatePrivateKey();
     return createKeyFromPrivateKey(context, { ...params, privateKey });
 }
 
-async function createKeyFromPrivateKey(context: Context, params: { privateKey: string, passphrase?: string, keyType: KeyType }): Promise<string> {
+async function createKeyFromPrivateKey(
+    context: Context,
+    params: { privateKey: string; passphrase?: string; keyType: KeyType }
+): Promise<string> {
     const publicKey = getPublicFromPrivate(params.privateKey);
     const passphrase = params.passphrase || "";
 
     const encryptedPrivateKey = encrypt(params.privateKey, passphrase);
     const rows = context.db.get(getTableName(params.keyType));
-    await rows.push({
-        encryptedPrivateKey,
-        publicKey
-    }).write();
+    await rows
+        .push({
+            encryptedPrivateKey,
+            publicKey
+        })
+        .write();
     return publicKey;
 }
 
-export async function deleteKey(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<boolean> {
+export async function deleteKey(
+    context: Context,
+    params: { publicKey: string; keyType: KeyType }
+): Promise<boolean> {
     const key = await getKeyPair(context, params);
     if (key === null) {
         console.log(`Key not found for ${params.publicKey}`);
@@ -63,7 +86,10 @@ export async function deleteKey(context: Context, params: { publicKey: string, k
     return true;
 }
 
-async function getKeyPair(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<KeyPair | null> {
+async function getKeyPair(
+    context: Context,
+    params: { publicKey: string; keyType: KeyType }
+): Promise<KeyPair | null> {
     const collection = context.db.get(getTableName(params.keyType));
     const row = await collection.find({ publicKey: params.publicKey }).value();
 
@@ -74,12 +100,23 @@ async function getKeyPair(context: Context, params: { publicKey: string, keyType
     }
 }
 
-async function removeKey(context: Context, params: { publicKey: string, keyType: KeyType }): Promise<void> {
+async function removeKey(
+    context: Context,
+    params: { publicKey: string; keyType: KeyType }
+): Promise<void> {
     const collection = context.db.get(getTableName(params.keyType));
     await collection.remove({ publicKey: params.publicKey }).write();
 }
 
-export async function sign(context: Context, params: { publicKey: string, message: string, passphrase: string, keyType: KeyType }): Promise<string> {
+export async function sign(
+    context: Context,
+    params: {
+        publicKey: string;
+        message: string;
+        passphrase: string;
+        keyType: KeyType;
+    }
+): Promise<string> {
     const key = await getKeyPair(context, params);
     if (key === null) {
         throw new KeystoreError(ErrorCode.NoSuchKey, null);
@@ -87,6 +124,10 @@ export async function sign(context: Context, params: { publicKey: string, messag
 
     const privateKey = decrypt(key.encryptedPrivateKey, params.passphrase);
     const { r, s, v } = signEcdsa(params.message, privateKey);
-    const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(v.toString(16), 2, "0")}`;
+    const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
+        v.toString(16),
+        2,
+        "0"
+    )}`;
     return sig;
 }
