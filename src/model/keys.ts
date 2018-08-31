@@ -55,8 +55,21 @@ export async function exportKey(
     if (key === null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
-    decode(key.secret, params.passphrase); // Throws an error if the passphrase is incorrect.
-    return JSON.parse(key.secret);
+    const json = JSON.parse(key.secret);
+    decode(json, params.passphrase); // Throws an error if the passphrase is incorrect.
+    return json;
+}
+
+export async function importKey(
+    context: Context,
+    params: { secret: SecretStorage; passphrase: string; keyType: KeyType }
+): Promise<string> {
+    const privateKey = decode(params.secret, params.passphrase);
+    return importRaw(context, {
+        privateKey,
+        passphrase: params.passphrase,
+        keyType: params.keyType
+    });
 }
 
 export function createKey(
@@ -135,7 +148,7 @@ export async function sign(
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
 
-    const privateKey = decode(key.secret, params.passphrase);
+    const privateKey = decode(JSON.parse(key.secret), params.passphrase);
     const { r, s, v } = signEcdsa(params.message, privateKey);
     const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
         v.toString(16),

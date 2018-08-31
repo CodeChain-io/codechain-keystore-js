@@ -23,6 +23,7 @@
 import { blake256 } from "codechain-sdk/lib/utils";
 import * as crypto from "crypto";
 import * as uuid from "uuid";
+import { SecretStorage } from "..";
 import { ErrorCode, KeystoreError } from "./error";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
@@ -79,8 +80,7 @@ export function encode(privateKey: string, passphrase: string): string {
     });
 }
 
-export function decode(secret: string, passphrase: string): string {
-    const json = JSON.parse(secret);
+export function decode(json: SecretStorage, passphrase: string): string {
     const kdfparams = json.crypto.kdfparams;
     const derivedKey = crypto.pbkdf2Sync(
         Buffer.from(passphrase),

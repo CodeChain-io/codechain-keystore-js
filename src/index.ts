@@ -4,6 +4,7 @@ import {
     deleteKey,
     exportKey,
     getKeys,
+    importKey,
     importRaw,
     KeyType,
     sign
@@ -40,6 +41,10 @@ export interface KeyStore {
         publicKey: string;
         passphrase: string;
     }): Promise<SecretStorage>;
+    importKey(params: {
+        secret: SecretStorage;
+        passphrase: string;
+    }): Promise<string>;
     createKey(params: { passphrase?: string }): Promise<string>;
     deleteKey(params: { publicKey: string }): Promise<boolean>;
     sign(params: {
@@ -96,6 +101,10 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
 
         exportKey: (params: { publicKey: string; passphrase: string }) => {
             return exportKey(context, { ...params, keyType });
+        },
+
+        importKey: (params: { secret: SecretStorage; passphrase: string }) => {
+            return importKey(context, { ...params, keyType });
         },
 
         createKey: (params: { passphrase?: string }) => {
