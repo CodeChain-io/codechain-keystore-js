@@ -92,7 +92,7 @@ export function decode(secret: string, passphrase: string): string {
     const ciphertext = Buffer.from(json.crypto.ciphertext, "hex");
     const mac = blake256(Buffer.concat([derivedKey.slice(16, 32), ciphertext]));
     if (mac !== json.crypto.mac) {
-        throw new KeystoreError(ErrorCode.DecryptionFailed, null);
+        throw new KeystoreError(ErrorCode.DecryptionFailed);
     }
     const decipher = crypto.createDecipheriv(
         json.crypto.cipher,

@@ -53,7 +53,7 @@ export async function exportKey(
 ): Promise<SecretStorage> {
     const key = await getKeyPair(context, params);
     if (key === null) {
-        throw new KeystoreError(ErrorCode.NoSuchKey, null);
+        throw new KeystoreError(ErrorCode.NoSuchKey);
     }
     decode(key.secret, params.passphrase); // Throws an error if the passphrase is incorrect.
     return JSON.parse(key.secret);
@@ -132,7 +132,7 @@ export async function sign(
 ): Promise<string> {
     const key = await getKeyPair(context, params);
     if (key === null) {
-        throw new KeystoreError(ErrorCode.NoSuchKey, null);
+        throw new KeystoreError(ErrorCode.NoSuchKey);
     }
 
     const privateKey = decode(key.secret, params.passphrase);
