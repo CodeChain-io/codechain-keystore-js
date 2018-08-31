@@ -25,7 +25,7 @@ import * as crypto from "crypto";
 import { ErrorCode, KeystoreError } from "./error";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
-export function encrypt(privateKey: string, passphrase: string): string {
+export function encode(privateKey: string, passphrase: string): string {
     const salt = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
 
@@ -74,8 +74,8 @@ export function encrypt(privateKey: string, passphrase: string): string {
     });
 }
 
-export function decrypt(encryptedText: string, passphrase: string): string {
-    const json = JSON.parse(encryptedText);
+export function decode(secret: string, passphrase: string): string {
+    const json = JSON.parse(secret);
     const kdfparams = json.crypto.kdfparams;
     const derivedKey = crypto.pbkdf2Sync(
         Buffer.from(passphrase),

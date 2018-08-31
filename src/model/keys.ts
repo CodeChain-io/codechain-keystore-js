@@ -5,11 +5,11 @@ import {
 } from "codechain-sdk/lib/utils";
 import * as _ from "lodash";
 import { Context } from "../context";
-import { decrypt, encrypt } from "../logic/crypto";
 import { ErrorCode, KeystoreError } from "../logic/error";
+import { decode, encode } from "../logic/storage";
 
 interface KeyPair {
-    encryptedPrivateKey: string;
+    secret: string;
     publicKey: string;
 }
 
@@ -61,11 +61,11 @@ async function createKeyFromPrivateKey(
     const publicKey = getPublicFromPrivate(params.privateKey);
     const passphrase = params.passphrase || "";
 
-    const encryptedPrivateKey = encrypt(params.privateKey, passphrase);
+    const secret = encode(params.privateKey, passphrase);
     const rows = context.db.get(getTableName(params.keyType));
     await rows
         .push({
-            encryptedPrivateKey,
+            secret,
             publicKey
         })
         .write();
@@ -122,7 +122,7 @@ export async function sign(
         throw new KeystoreError(ErrorCode.NoSuchKey, null);
     }
 
-    const privateKey = decrypt(key.encryptedPrivateKey, params.passphrase);
+    const privateKey = decode(key.secret, params.passphrase);
     const { r, s, v } = signEcdsa(params.message, privateKey);
     const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
         v.toString(16),
