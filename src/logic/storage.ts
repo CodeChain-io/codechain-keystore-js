@@ -22,6 +22,7 @@
 
 import { blake256 } from "codechain-sdk/lib/utils";
 import * as crypto from "crypto";
+import * as uuid from "uuid";
 import { ErrorCode, KeystoreError } from "./error";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
@@ -70,7 +71,11 @@ export function encode(privateKey: string, passphrase: string): string {
             kdf,
             kdfparams,
             mac
-        }
+        },
+        id: uuid.v4({
+            random: Array.prototype.slice.call(crypto.randomBytes(16), 0)
+        }),
+        version: 3
     });
 }
 

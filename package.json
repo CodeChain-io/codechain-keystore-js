@@ -10,11 +10,11 @@
     "fmt": "tslint -p . --fix && prettier 'src/**/*.{ts,js,json}' --write"
   },
   "repository": {
-      "type": "git",
-      "url": "https://github.com/CodeChain-io/codechain-keystore.git"
+    "type": "git",
+    "url": "https://github.com/CodeChain-io/codechain-keystore.git"
   },
   "bugs": {
-      "url": "https://github.com/codechain-io/codechain-keystore/issues"
+    "url": "https://github.com/codechain-io/codechain-keystore/issues"
   },
   "homepage": "https://github.com/CodeChain-io/codechain-keystore#readme",
   "main": "./lib/index.js",
@@ -25,13 +25,15 @@
   "dependencies": {
     "codechain-sdk": "^0.1.0-alpha.18",
     "config": "^2.0.1",
-    "lowdb": "^1.0.0"
+    "lowdb": "^1.0.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@types/jest": "^23.3.1",
     "@types/lodash": "^4.14.116",
     "@types/lowdb": "^1.0.5",
     "@types/node": "^10.9.1",
+    "@types/uuid": "^3.4.4",
     "jest": "^23.5.0",
     "prettier": "1.14.2",
     "ts-jest": "^23.1.3",

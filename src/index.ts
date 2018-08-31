@@ -26,6 +26,8 @@ export interface SecretStorage {
         };
         mac: string;
     };
+    id: string;
+    version: number;
 }
 
 export interface KeyStore {
