@@ -4,6 +4,7 @@ import {
     signEcdsa
 } from "codechain-sdk/lib/utils";
 import * as _ from "lodash";
+import { SecretStorage } from "..";
 import { Context } from "../context";
 import { ErrorCode, KeystoreError } from "../logic/error";
 import { decode, encode } from "../logic/storage";
@@ -44,6 +45,18 @@ export function importRaw(
     params: { privateKey: string; passphrase?: string; keyType: KeyType }
 ): Promise<string> {
     return createKeyFromPrivateKey(context, params);
+}
+
+export async function exportKey(
+    context: Context,
+    params: { publicKey: string; passphrase: string; keyType: KeyType }
+): Promise<SecretStorage> {
+    const key = await getKeyPair(context, params);
+    if (key === null) {
+        throw new KeystoreError(ErrorCode.NoSuchKey, null);
+    }
+    decode(key.secret, params.passphrase); // Throws an error if the passphrase is incorrect.
+    return JSON.parse(key.secret);
 }
 
 export function createKey(

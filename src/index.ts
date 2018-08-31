@@ -2,6 +2,7 @@ import { closeContext, Context, createContext } from "./context";
 import {
     createKey,
     deleteKey,
+    exportKey,
     getKeys,
     importRaw,
     KeyType,
@@ -9,12 +10,34 @@ import {
 } from "./model/keys";
 import { addMapping, getMapping } from "./model/mapping";
 
+export interface SecretStorage {
+    crypto: {
+        cipher: string;
+        cipherparams: {
+            iv: string;
+        };
+        ciphertext: string;
+        kdf: string;
+        kdfparams: {
+            c: number;
+            dklen: number;
+            prf: string;
+            salt: string;
+        };
+        mac: string;
+    };
+}
+
 export interface KeyStore {
     getKeys(): Promise<string[]>;
     importRaw(params: {
         privateKey: string;
         passphrase?: string;
     }): Promise<string>;
+    exportKey(params: {
+        publicKey: string;
+        passphrase: string;
+    }): Promise<SecretStorage>;
     createKey(params: { passphrase?: string }): Promise<string>;
     deleteKey(params: { publicKey: string }): Promise<boolean>;
     sign(params: {
@@ -67,6 +90,10 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
 
         importRaw: (params: { privateKey: string; passphrase?: string }) => {
             return importRaw(context, { ...params, keyType });
+        },
+
+        exportKey: (params: { publicKey: string; passphrase: string }) => {
+            return exportKey(context, { ...params, keyType });
         },
 
         createKey: (params: { passphrase?: string }) => {

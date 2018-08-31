@@ -22,6 +22,26 @@ test("platform.importRaw", async () => {
     );
 });
 
+test("platform.exportKey", async () => {
+    const privateKey =
+        "a05f81608217738d99da8fd227897b87e8890d3c9159b559c7c8bbd408e5fb6e";
+    const key = await cckey.platform.importRaw({
+        privateKey,
+        passphrase: "satoshi"
+    });
+    const storage = await cckey.platform.exportKey({
+        publicKey: key,
+        passphrase: "satoshi"
+    });
+    expect(storage).toHaveProperty("crypto");
+    expect(storage.crypto).toHaveProperty("cipher");
+    expect(storage.crypto).toHaveProperty("cipherparams");
+    expect(storage.crypto).toHaveProperty("ciphertext");
+    expect(storage.crypto).toHaveProperty("kdf");
+    expect(storage.crypto).toHaveProperty("kdfparams");
+    expect(storage.crypto).toHaveProperty("mac");
+});
+
 test("platform.createKey", async () => {
     const key = await cckey.platform.createKey({ passphrase: "satoshi" });
     expect(key).toBeTruthy();
