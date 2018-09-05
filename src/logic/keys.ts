@@ -24,7 +24,7 @@ export async function importRaw(
     const publicKey = await KeysModel.importRaw(context, params);
     const key = keyFromPublicKey(params.keyType, publicKey);
 
-    MappingModel.addMapping(context, {
+    MappingModel.add(context, {
         key,
         value: publicKey
     });
@@ -54,7 +54,7 @@ export async function importKey(
     const publicKey = await KeysModel.importKey(context, params);
     const key = keyFromPublicKey(params.keyType, publicKey);
 
-    MappingModel.addMapping(context, {
+    MappingModel.add(context, {
         key,
         value: publicKey
     });
@@ -69,7 +69,7 @@ export async function createKey(
     const publicKey = await KeysModel.createKey(context, params);
     const key = keyFromPublicKey(params.keyType, publicKey);
 
-    MappingModel.addMapping(context, {
+    MappingModel.add(context, {
         key,
         value: publicKey
     });
@@ -103,7 +103,7 @@ export async function deleteKey(
     });
 
     if (result) {
-        MappingModel.removeMapping(context, {
+        MappingModel.remove(context, {
             key: params.key
         });
     }
