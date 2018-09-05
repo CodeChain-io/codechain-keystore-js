@@ -1,5 +1,36 @@
+export interface SecretStorage {
+    crypto: {
+        cipher: string;
+        cipherparams: {
+            iv: string;
+        };
+        ciphertext: string;
+        kdf: string;
+        kdfparams: {
+            c: number;
+            dklen: number;
+            prf: string;
+            salt: string;
+        };
+        mac: string;
+    };
+    id: string;
+    version: number;
+}
 export interface KeyStore {
     getKeys(): Promise<string[]>;
+    importRaw(params: {
+        privateKey: string;
+        passphrase?: string;
+    }): Promise<string>;
+    exportKey(params: {
+        publicKey: string;
+        passphrase: string;
+    }): Promise<SecretStorage>;
+    importKey(params: {
+        secret: SecretStorage;
+        passphrase: string;
+    }): Promise<string>;
     createKey(params: {
         passphrase?: string;
     }): Promise<string>;
