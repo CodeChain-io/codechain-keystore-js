@@ -1,3 +1,4 @@
+import { getAccountIdFromPublic } from "codechain-sdk/lib/utils";
 import { CCKey } from "../index";
 
 let cckey: CCKey;
@@ -101,11 +102,13 @@ test("platform.deleteKey", async () => {
 
     const keys = await cckey.platform.getKeys();
     expect(keys).toEqual([key2]);
-});
 
-test("mapping.add", async () => {
-    await cckey.mapping.add({ key: "satoshi", value: "nakamoto" });
-    const value = await cckey.mapping.get({ key: "satoshi" });
-
-    expect(value).toEqual("nakamoto");
+    const mappingResult1 = await cckey.mapping.get({
+        key: getAccountIdFromPublic(key1)
+    });
+    const mappingResult2 = await cckey.mapping.get({
+        key: getAccountIdFromPublic(key2)
+    });
+    expect(mappingResult1).toEqual(null);
+    expect(mappingResult2).toEqual(key2);
 });

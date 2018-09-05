@@ -1,7 +1,6 @@
 import { closeContext, Context, createContext } from "./context";
+import * as KeysLogic from "./logic/keys";
 import {
-    createKey,
-    deleteKey,
     exportKey,
     getKeys,
     importKey,
@@ -9,7 +8,7 @@ import {
     KeyType,
     sign
 } from "./model/keys";
-import { addMapping, getMapping } from "./model/mapping";
+import { getMapping } from "./model/mapping";
 
 export interface SecretStorage {
     crypto: {
@@ -73,10 +72,6 @@ class CCKey {
     public asset: KeyStore = createKeyStore(this.context, KeyType.Asset);
 
     public mapping = {
-        add: (params: { key: string; value: string }) => {
-            return addMapping(this.context, params);
-        },
-
         get: (params: { key: string }) => {
             return getMapping(this.context, params);
         }
@@ -108,11 +103,11 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
         },
 
         createKey: (params: { passphrase?: string }) => {
-            return createKey(context, { ...params, keyType });
+            return KeysLogic.createKey(context, { ...params, keyType });
         },
 
         deleteKey: (params: { publicKey: string }) => {
-            return deleteKey(context, { ...params, keyType });
+            return KeysLogic.deleteKey(context, { ...params, keyType });
         },
 
         sign: (params: {

@@ -8,6 +8,14 @@ export async function addMapping(
     await collection.set(params.key, params.value).write();
 }
 
+export async function removeMapping(
+    context: Context,
+    params: { key: string }
+): Promise<void> {
+    const collection = context.db.get("mapping");
+    await collection.unset(params.key).write();
+}
+
 export async function getMapping(
     context: Context,
     params: { key: string }
