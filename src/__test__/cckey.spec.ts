@@ -1,4 +1,6 @@
 import { CCKey } from "../index";
+import { keyFromPublicKey } from "../logic/keys";
+import { KeyType } from "../model/keys";
 
 let cckey: CCKey;
 
@@ -17,9 +19,9 @@ test("platform.importRaw", async () => {
         privateKey,
         passphrase: "satoshi"
     });
-    expect(key).toBe(
-        "0eb7cad828f1b48c97571ac5fde6add42a7f9285a204291cdc2a03007480dc70639d80c57d80ba6bb02fc2237fec1bb357e405e13b7fb8ed4f947fd8f4900abd"
-    );
+    const publicKey =
+        "0eb7cad828f1b48c97571ac5fde6add42a7f9285a204291cdc2a03007480dc70639d80c57d80ba6bb02fc2237fec1bb357e405e13b7fb8ed4f947fd8f4900abd";
+    expect(key).toBe(keyFromPublicKey(KeyType.Platform, publicKey));
 });
 
 test("platform.importKey", async () => {
@@ -47,9 +49,9 @@ test("platform.importKey", async () => {
         secret,
         passphrase: "satoshi"
     });
-    expect(key).toBe(
-        "0eb7cad828f1b48c97571ac5fde6add42a7f9285a204291cdc2a03007480dc70639d80c57d80ba6bb02fc2237fec1bb357e405e13b7fb8ed4f947fd8f4900abd"
-    );
+    const publicKey =
+        "0eb7cad828f1b48c97571ac5fde6add42a7f9285a204291cdc2a03007480dc70639d80c57d80ba6bb02fc2237fec1bb357e405e13b7fb8ed4f947fd8f4900abd";
+    expect(key).toBe(keyFromPublicKey(KeyType.Platform, publicKey));
 });
 
 test("platform.exportKey", async () => {
@@ -60,7 +62,7 @@ test("platform.exportKey", async () => {
         passphrase: "satoshi"
     });
     const storage = await cckey.platform.exportKey({
-        publicKey: key,
+        key,
         passphrase: "satoshi"
     });
     expect(storage).toHaveProperty("crypto");
@@ -75,13 +77,13 @@ test("platform.exportKey", async () => {
 test("platform.createKey", async () => {
     const key = await cckey.platform.createKey({ passphrase: "satoshi" });
     expect(key).toBeTruthy();
-    expect(key.length).toBe(128);
+    expect(key.length).toBe(40);
 });
 
 test("platform.createKey with an empty passphrase", async () => {
     const key = await cckey.platform.createKey({ passphrase: "" });
     expect(key).toBeTruthy();
-    expect(key.length).toBe(128);
+    expect(key.length).toBe(40);
 });
 
 test("platform.getKeys", async () => {
@@ -97,15 +99,18 @@ test("platform.getKeys", async () => {
 test("platform.deleteKey", async () => {
     const key1 = await cckey.platform.createKey({ passphrase: "satoshi" });
     const key2 = await cckey.platform.createKey({ passphrase: "satoshi" });
-    await cckey.platform.deleteKey({ publicKey: key1 });
+    const originPublicKey2 = await cckey.platform.getPublicKey({ key: key2 });
+    await cckey.platform.deleteKey({ key: key1 });
 
     const keys = await cckey.platform.getKeys();
     expect(keys).toEqual([key2]);
-});
 
-test("mapping.add", async () => {
-    await cckey.mapping.add({ key: "satoshi", value: "nakamoto" });
-    const value = await cckey.mapping.get({ key: "satoshi" });
-
-    expect(value).toEqual("nakamoto");
+    const publicKey1 = await cckey.platform.getPublicKey({
+        key: key1
+    });
+    const publicKey2 = await cckey.platform.getPublicKey({
+        key: key2
+    });
+    expect(publicKey1).toEqual(null);
+    expect(publicKey2).toEqual(originPublicKey2);
 });
