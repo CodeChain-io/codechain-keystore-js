@@ -1,16 +1,16 @@
 import { Context } from "../context";
 import { KeyType } from "../model/keys";
-import { Key, PublicKey, SecretStorage } from "../types";
+import { Key, PrivateKey, PublicKey, SecretStorage } from "../types";
 export declare function getKeys(context: Context, params: {
     keyType: KeyType;
 }): Promise<Key[]>;
 export declare function importRaw(context: Context, params: {
-    privateKey: string;
+    privateKey: PrivateKey;
     passphrase?: string;
     keyType: KeyType;
 }): Promise<Key>;
 export declare function exportKey(context: Context, params: {
-    key: string;
+    key: Key;
     passphrase: string;
     keyType: KeyType;
 }): Promise<SecretStorage>;

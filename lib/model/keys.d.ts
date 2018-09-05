@@ -1,5 +1,5 @@
 import { Context } from "../context";
-import { PublicKey, SecretStorage } from "../types";
+import { PrivateKey, PublicKey, SecretStorage } from "../types";
 export declare enum KeyType {
     Platform = 0,
     Asset = 1
@@ -8,7 +8,7 @@ export declare function getKeys(context: Context, params: {
     keyType: KeyType;
 }): Promise<PublicKey[]>;
 export declare function importRaw(context: Context, params: {
-    privateKey: string;
+    privateKey: PrivateKey;
     passphrase?: string;
     keyType: KeyType;
 }): Promise<PublicKey>;

@@ -7,6 +7,7 @@ export declare type Key = AccountId | PublicKeyHash;
 export declare type PublicKeyHash = string;
 export declare type AccountId = string;
 export declare type PublicKey = string;
+export declare type PrivateKey = string;
 export interface SecretStorage {
     crypto: {
         cipher: string;
