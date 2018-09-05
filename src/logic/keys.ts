@@ -4,11 +4,12 @@ import { Context } from "../context";
 import { KeyType } from "../model/keys";
 import * as KeysModel from "../model/keys";
 import * as MappingModel from "../model/mapping";
+import { PublicKey } from "../types";
 
 export async function createKey(
     context: Context,
     params: { passphrase?: string; keyType: KeyType }
-): Promise<string> {
+): Promise<PublicKey> {
     const publicKey = await KeysModel.createKey(context, params);
     const mappingKey = getMappingKey(params.keyType, publicKey);
 
@@ -20,7 +21,7 @@ export async function createKey(
     return publicKey;
 }
 
-function getMappingKey(type: KeyType, key: string): string {
+function getMappingKey(type: KeyType, key: PublicKey): string {
     switch (type) {
         case KeyType.Platform:
             return getAccountIdFromPublic(key);
@@ -33,7 +34,7 @@ function getMappingKey(type: KeyType, key: string): string {
 
 export async function deleteKey(
     context: Context,
-    params: { publicKey: string; keyType: KeyType }
+    params: { publicKey: PublicKey; keyType: KeyType }
 ): Promise<boolean> {
     const result = await KeysModel.deleteKey(context, params);
 

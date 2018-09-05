@@ -4,14 +4,14 @@ import {
     signEcdsa
 } from "codechain-sdk/lib/utils";
 import * as _ from "lodash";
-import { SecretStorage } from "..";
 import { Context } from "../context";
 import { ErrorCode, KeystoreError } from "../logic/error";
 import { decode, encode } from "../logic/storage";
+import { PublicKey, SecretStorage } from "../types";
 
 interface KeyPair {
     secret: string;
-    publicKey: string;
+    publicKey: PublicKey;
 }
 
 export enum KeyType {
@@ -33,7 +33,7 @@ function getTableName(type: KeyType) {
 export async function getKeys(
     context: Context,
     params: { keyType: KeyType }
-): Promise<string[]> {
+): Promise<PublicKey[]> {
     const rows: any = await context.db
         .get(getTableName(params.keyType))
         .value();
@@ -43,13 +43,13 @@ export async function getKeys(
 export function importRaw(
     context: Context,
     params: { privateKey: string; passphrase?: string; keyType: KeyType }
-): Promise<string> {
-    return createKeyFromPrivateKey(context, params);
+): Promise<PublicKey> {
+    return createPublicKeyFromPrivateKey(context, params);
 }
 
 export async function exportKey(
     context: Context,
-    params: { publicKey: string; passphrase: string; keyType: KeyType }
+    params: { publicKey: PublicKey; passphrase: string; keyType: KeyType }
 ): Promise<SecretStorage> {
     const key = await getKeyPair(context, params);
     if (key === null) {
@@ -63,7 +63,7 @@ export async function exportKey(
 export async function importKey(
     context: Context,
     params: { secret: SecretStorage; passphrase: string; keyType: KeyType }
-): Promise<string> {
+): Promise<PublicKey> {
     const privateKey = decode(params.secret, params.passphrase);
     return importRaw(context, {
         privateKey,
@@ -75,15 +75,15 @@ export async function importKey(
 export function createKey(
     context: Context,
     params: { passphrase?: string; keyType: KeyType }
-): Promise<string> {
+): Promise<PublicKey> {
     const privateKey = generatePrivateKey();
-    return createKeyFromPrivateKey(context, { ...params, privateKey });
+    return createPublicKeyFromPrivateKey(context, { ...params, privateKey });
 }
 
-async function createKeyFromPrivateKey(
+async function createPublicKeyFromPrivateKey(
     context: Context,
     params: { privateKey: string; passphrase?: string; keyType: KeyType }
-): Promise<string> {
+): Promise<PublicKey> {
     const publicKey = getPublicFromPrivate(params.privateKey);
     const passphrase = params.passphrase || "";
 
@@ -100,7 +100,7 @@ async function createKeyFromPrivateKey(
 
 export async function deleteKey(
     context: Context,
-    params: { publicKey: string; keyType: KeyType }
+    params: { publicKey: PublicKey; keyType: KeyType }
 ): Promise<boolean> {
     const key = await getKeyPair(context, params);
     if (key === null) {
@@ -113,7 +113,7 @@ export async function deleteKey(
 
 async function getKeyPair(
     context: Context,
-    params: { publicKey: string; keyType: KeyType }
+    params: { publicKey: PublicKey; keyType: KeyType }
 ): Promise<KeyPair | null> {
     const collection = context.db.get(getTableName(params.keyType));
     const row = await collection.find({ publicKey: params.publicKey }).value();
@@ -127,7 +127,7 @@ async function getKeyPair(
 
 async function removeKey(
     context: Context,
-    params: { publicKey: string; keyType: KeyType }
+    params: { publicKey: PublicKey; keyType: KeyType }
 ): Promise<void> {
     const collection = context.db.get(getTableName(params.keyType));
     await collection.remove({ publicKey: params.publicKey }).write();
@@ -136,7 +136,7 @@ async function removeKey(
 export async function sign(
     context: Context,
     params: {
-        publicKey: string;
+        publicKey: PublicKey;
         message: string;
         passphrase: string;
         keyType: KeyType;

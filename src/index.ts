@@ -9,45 +9,28 @@ import {
     sign
 } from "./model/keys";
 import { getMapping } from "./model/mapping";
+import { PublicKey, SecretStorage } from "./types";
 
-export interface SecretStorage {
-    crypto: {
-        cipher: string;
-        cipherparams: {
-            iv: string;
-        };
-        ciphertext: string;
-        kdf: string;
-        kdfparams: {
-            c: number;
-            dklen: number;
-            prf: string;
-            salt: string;
-        };
-        mac: string;
-    };
-    id: string;
-    version: number;
-}
+export { SecretStorage };
 
 export interface KeyStore {
     getKeys(): Promise<string[]>;
     importRaw(params: {
-        privateKey: string;
+        privateKey: PublicKey;
         passphrase?: string;
     }): Promise<string>;
     exportKey(params: {
-        publicKey: string;
+        publicKey: PublicKey;
         passphrase: string;
     }): Promise<SecretStorage>;
     importKey(params: {
         secret: SecretStorage;
         passphrase: string;
-    }): Promise<string>;
-    createKey(params: { passphrase?: string }): Promise<string>;
-    deleteKey(params: { publicKey: string }): Promise<boolean>;
+    }): Promise<PublicKey>;
+    createKey(params: { passphrase?: string }): Promise<PublicKey>;
+    deleteKey(params: { publicKey: PublicKey }): Promise<boolean>;
     sign(params: {
-        publicKey: string;
+        publicKey: PublicKey;
         message: string;
         passphrase: string;
     }): Promise<string>;
@@ -90,11 +73,11 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
             return getKeys(context, { keyType });
         },
 
-        importRaw: (params: { privateKey: string; passphrase?: string }) => {
+        importRaw: (params: { privateKey: PublicKey; passphrase?: string }) => {
             return importRaw(context, { ...params, keyType });
         },
 
-        exportKey: (params: { publicKey: string; passphrase: string }) => {
+        exportKey: (params: { publicKey: PublicKey; passphrase: string }) => {
             return exportKey(context, { ...params, keyType });
         },
 
@@ -106,12 +89,12 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
             return KeysLogic.createKey(context, { ...params, keyType });
         },
 
-        deleteKey: (params: { publicKey: string }) => {
+        deleteKey: (params: { publicKey: PublicKey }) => {
             return KeysLogic.deleteKey(context, { ...params, keyType });
         },
 
         sign: (params: {
-            publicKey: string;
+            publicKey: PublicKey;
             message: string;
             passphrase: string;
         }) => {
