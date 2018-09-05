@@ -1,11 +1,17 @@
 import { Context } from "../context";
 
-export async function addMapping(context: Context, params: { key: string; value: string; }): Promise<void> {
+export async function addMapping(
+    context: Context,
+    params: { key: string; value: string }
+): Promise<void> {
     const collection = context.db.get("mapping");
     await collection.set(params.key, params.value).write();
 }
 
-export async function getMapping(context: Context, params: { key: string }): Promise<string | null> {
+export async function getMapping(
+    context: Context,
+    params: { key: string }
+): Promise<string | null> {
     const collection = context.db.get("mapping");
     const value = await collection.get(params.key).value();
 

@@ -1,5 +1,5 @@
-import { KeystoreError, ErrorCode } from "./error";
 import { Context } from "../context";
+import { ErrorCode, KeystoreError } from "./error";
 
 export function errorMessage(context: Context, error: KeystoreError): string {
     switch (error.code) {
