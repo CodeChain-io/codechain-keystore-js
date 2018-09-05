@@ -1,8 +1,9 @@
 import { Context } from "../context";
+import { Key, PublicKey } from "../types";
 
 export async function addMapping(
     context: Context,
-    params: { key: string; value: string }
+    params: { key: Key; value: PublicKey }
 ): Promise<void> {
     const collection = context.db.get("mapping");
     await collection.set(params.key, params.value).write();
@@ -10,16 +11,16 @@ export async function addMapping(
 
 export async function removeMapping(
     context: Context,
-    params: { key: string }
+    params: { key: Key }
 ): Promise<void> {
     const collection = context.db.get("mapping");
     await collection.unset(params.key).write();
 }
 
-export async function getMapping(
+export async function getPublicKey(
     context: Context,
-    params: { key: string }
-): Promise<string | null> {
+    params: { key: Key }
+): Promise<PublicKey | null> {
     const collection = context.db.get("mapping");
     const value = await collection.get(params.key).value();
 

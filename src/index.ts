@@ -1,36 +1,27 @@
 import { closeContext, Context, createContext } from "./context";
 import * as KeysLogic from "./logic/keys";
-import {
-    exportKey,
-    getKeys,
-    importKey,
-    importRaw,
-    KeyType,
-    sign
-} from "./model/keys";
-import { getMapping } from "./model/mapping";
-import { PublicKey, SecretStorage } from "./types";
+import { KeyType } from "./model/keys";
+import * as MappingModel from "./model/mapping";
+import { Key, PublicKey, SecretStorage } from "./types";
 
 export { SecretStorage };
 
 export interface KeyStore {
-    getKeys(): Promise<string[]>;
+    getKeys(): Promise<Key[]>;
     importRaw(params: {
         privateKey: PublicKey;
         passphrase?: string;
-    }): Promise<string>;
-    exportKey(params: {
-        publicKey: PublicKey;
-        passphrase: string;
-    }): Promise<SecretStorage>;
+    }): Promise<Key>;
+    exportKey(params: { key: Key; passphrase: string }): Promise<SecretStorage>;
     importKey(params: {
         secret: SecretStorage;
         passphrase: string;
-    }): Promise<PublicKey>;
-    createKey(params: { passphrase?: string }): Promise<PublicKey>;
-    deleteKey(params: { publicKey: PublicKey }): Promise<boolean>;
+    }): Promise<Key>;
+    getPublicKey(params: { key: Key }): Promise<PublicKey | null>;
+    createKey(params: { passphrase?: string }): Promise<Key>;
+    deleteKey(params: { key: Key }): Promise<boolean>;
     sign(params: {
-        publicKey: PublicKey;
+        key: Key;
         message: string;
         passphrase: string;
     }): Promise<string>;
@@ -54,12 +45,6 @@ class CCKey {
     public platform: KeyStore = createKeyStore(this.context, KeyType.Platform);
     public asset: KeyStore = createKeyStore(this.context, KeyType.Asset);
 
-    public mapping = {
-        get: (params: { key: string }) => {
-            return getMapping(this.context, params);
-        }
-    };
-
     private constructor(private context: Context) {}
 
     public close(): Promise<void> {
@@ -70,35 +55,35 @@ class CCKey {
 function createKeyStore(context: Context, keyType: KeyType): KeyStore {
     return {
         getKeys: () => {
-            return getKeys(context, { keyType });
+            return KeysLogic.getKeys(context, { keyType });
         },
 
-        importRaw: (params: { privateKey: PublicKey; passphrase?: string }) => {
-            return importRaw(context, { ...params, keyType });
+        importRaw: (params: { privateKey: string; passphrase?: string }) => {
+            return KeysLogic.importRaw(context, { ...params, keyType });
         },
 
-        exportKey: (params: { publicKey: PublicKey; passphrase: string }) => {
-            return exportKey(context, { ...params, keyType });
+        exportKey: (params: { key: Key; passphrase: string }) => {
+            return KeysLogic.exportKey(context, { ...params, keyType });
         },
 
         importKey: (params: { secret: SecretStorage; passphrase: string }) => {
-            return importKey(context, { ...params, keyType });
+            return KeysLogic.importKey(context, { ...params, keyType });
+        },
+
+        getPublicKey: (params: { key: Key }) => {
+            return MappingModel.getPublicKey(context, params);
         },
 
         createKey: (params: { passphrase?: string }) => {
             return KeysLogic.createKey(context, { ...params, keyType });
         },
 
-        deleteKey: (params: { publicKey: PublicKey }) => {
+        deleteKey: (params: { key: Key }) => {
             return KeysLogic.deleteKey(context, { ...params, keyType });
         },
 
-        sign: (params: {
-            publicKey: PublicKey;
-            message: string;
-            passphrase: string;
-        }) => {
-            return sign(context, { ...params, keyType });
+        sign: (params: { key: Key; message: string; passphrase: string }) => {
+            return KeysLogic.sign(context, { ...params, keyType });
         }
     };
 }
