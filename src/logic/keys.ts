@@ -4,7 +4,7 @@ import { Context } from "../context";
 import { KeyType } from "../model/keys";
 import * as KeysModel from "../model/keys";
 import * as MappingModel from "../model/mapping";
-import { Key, PublicKey, SecretStorage } from "../types";
+import { Key, PrivateKey, PublicKey, SecretStorage } from "../types";
 import { ErrorCode, KeystoreError } from "./error";
 
 export async function getKeys(
@@ -19,7 +19,7 @@ export async function getKeys(
 
 export async function importRaw(
     context: Context,
-    params: { privateKey: string; passphrase?: string; keyType: KeyType }
+    params: { privateKey: PrivateKey; passphrase?: string; keyType: KeyType }
 ): Promise<Key> {
     const publicKey = await KeysModel.importRaw(context, params);
     const key = keyFromPublicKey(params.keyType, publicKey);

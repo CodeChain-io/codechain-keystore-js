@@ -7,7 +7,7 @@ import * as _ from "lodash";
 import { Context } from "../context";
 import { ErrorCode, KeystoreError } from "../logic/error";
 import { decode, encode } from "../logic/storage";
-import { PublicKey, SecretStorage } from "../types";
+import { PrivateKey, PublicKey, SecretStorage } from "../types";
 
 interface KeyPair {
     secret: string;
@@ -42,7 +42,7 @@ export async function getKeys(
 
 export function importRaw(
     context: Context,
-    params: { privateKey: string; passphrase?: string; keyType: KeyType }
+    params: { privateKey: PrivateKey; passphrase?: string; keyType: KeyType }
 ): Promise<PublicKey> {
     return createPublicKeyFromPrivateKey(context, params);
 }
@@ -82,7 +82,7 @@ export function createKey(
 
 async function createPublicKeyFromPrivateKey(
     context: Context,
-    params: { privateKey: string; passphrase?: string; keyType: KeyType }
+    params: { privateKey: PrivateKey; passphrase?: string; keyType: KeyType }
 ): Promise<PublicKey> {
     const publicKey = getPublicFromPrivate(params.privateKey);
     const passphrase = params.passphrase || "";
