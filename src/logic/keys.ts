@@ -34,7 +34,7 @@ export async function importRaw(
 
 export async function exportKey(
     context: Context,
-    params: { key: string; passphrase: string; keyType: KeyType }
+    params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<SecretStorage> {
     const publicKey = await MappingModel.getPublicKey(context, params);
     if (publicKey === null) {
