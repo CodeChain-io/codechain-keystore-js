@@ -104,7 +104,6 @@ export async function deleteKey(
 ): Promise<boolean> {
     const key = await getKeyPair(context, params);
     if (key === null) {
-        console.log(`Key not found for ${params.publicKey}`);
         return false;
     }
 
