@@ -1,8 +1,12 @@
 import { Context } from "../context";
+import { Key, PublicKey } from "../types";
 export declare function addMapping(context: Context, params: {
-    key: string;
-    value: string;
+    key: Key;
+    value: PublicKey;
 }): Promise<void>;
-export declare function getMapping(context: Context, params: {
-    key: string;
-}): Promise<string | null>;
+export declare function removeMapping(context: Context, params: {
+    key: Key;
+}): Promise<void>;
+export declare function getPublicKey(context: Context, params: {
+    key: Key;
+}): Promise<PublicKey | null>;

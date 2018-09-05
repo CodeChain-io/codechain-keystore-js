@@ -1,19 +1,16 @@
 import { Context } from "../context";
-import { PublicKey, SecretStorage } from "../types";
-export declare enum KeyType {
-    Platform = 0,
-    Asset = 1
-}
+import { KeyType } from "../model/keys";
+import { Key, PublicKey, SecretStorage } from "../types";
 export declare function getKeys(context: Context, params: {
     keyType: KeyType;
-}): Promise<PublicKey[]>;
+}): Promise<Key[]>;
 export declare function importRaw(context: Context, params: {
     privateKey: string;
     passphrase?: string;
     keyType: KeyType;
-}): Promise<PublicKey>;
+}): Promise<Key>;
 export declare function exportKey(context: Context, params: {
-    publicKey: PublicKey;
+    key: string;
     passphrase: string;
     keyType: KeyType;
 }): Promise<SecretStorage>;
@@ -21,17 +18,18 @@ export declare function importKey(context: Context, params: {
     secret: SecretStorage;
     passphrase: string;
     keyType: KeyType;
-}): Promise<PublicKey>;
+}): Promise<Key>;
 export declare function createKey(context: Context, params: {
     passphrase?: string;
     keyType: KeyType;
-}): Promise<PublicKey>;
+}): Promise<Key>;
+export declare function keyFromPublicKey(type: KeyType, publicKey: PublicKey): Key;
 export declare function deleteKey(context: Context, params: {
-    publicKey: PublicKey;
+    key: Key;
     keyType: KeyType;
 }): Promise<boolean>;
 export declare function sign(context: Context, params: {
-    publicKey: PublicKey;
+    key: Key;
     message: string;
     passphrase: string;
     keyType: KeyType;

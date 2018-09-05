@@ -1,44 +1,30 @@
-export interface SecretStorage {
-    crypto: {
-        cipher: string;
-        cipherparams: {
-            iv: string;
-        };
-        ciphertext: string;
-        kdf: string;
-        kdfparams: {
-            c: number;
-            dklen: number;
-            prf: string;
-            salt: string;
-        };
-        mac: string;
-    };
-    id: string;
-    version: number;
-}
+import { Key, PublicKey, SecretStorage } from "./types";
+export { SecretStorage };
 export interface KeyStore {
-    getKeys(): Promise<string[]>;
+    getKeys(): Promise<Key[]>;
     importRaw(params: {
-        privateKey: string;
+        privateKey: PublicKey;
         passphrase?: string;
-    }): Promise<string>;
+    }): Promise<Key>;
     exportKey(params: {
-        publicKey: string;
+        key: Key;
         passphrase: string;
     }): Promise<SecretStorage>;
     importKey(params: {
         secret: SecretStorage;
         passphrase: string;
-    }): Promise<string>;
+    }): Promise<Key>;
+    getPublicKey(params: {
+        key: Key;
+    }): Promise<PublicKey | null>;
     createKey(params: {
         passphrase?: string;
-    }): Promise<string>;
+    }): Promise<Key>;
     deleteKey(params: {
-        publicKey: string;
+        key: Key;
     }): Promise<boolean>;
     sign(params: {
-        publicKey: string;
+        key: Key;
         message: string;
         passphrase: string;
     }): Promise<string>;
@@ -52,15 +38,6 @@ declare class CCKey {
     }): Promise<CCKey>;
     platform: KeyStore;
     asset: KeyStore;
-    mapping: {
-        add: (params: {
-            key: string;
-            value: string;
-        }) => Promise<void>;
-        get: (params: {
-            key: string;
-        }) => Promise<string | null>;
-    };
     private constructor();
     close(): Promise<void>;
 }
