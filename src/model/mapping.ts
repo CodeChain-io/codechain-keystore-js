@@ -1,7 +1,7 @@
 import { Context } from "../context";
 import { Key, PublicKey } from "../types";
 
-export async function addMapping(
+export async function add(
     context: Context,
     params: { key: Key; value: PublicKey }
 ): Promise<void> {
@@ -9,7 +9,7 @@ export async function addMapping(
     await collection.set(params.key, params.value).write();
 }
 
-export async function removeMapping(
+export async function remove(
     context: Context,
     params: { key: Key }
 ): Promise<void> {

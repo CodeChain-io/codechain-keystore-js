@@ -7,6 +7,7 @@ export type Key = AccountId | PublicKeyHash;
 export type PublicKeyHash = string;
 export type AccountId = string;
 export type PublicKey = string;
+export type PrivateKey = string;
 
 export interface SecretStorage {
     crypto: {

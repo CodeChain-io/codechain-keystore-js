@@ -4,7 +4,7 @@ import { Context } from "../context";
 import { KeyType } from "../model/keys";
 import * as KeysModel from "../model/keys";
 import * as MappingModel from "../model/mapping";
-import { Key, PublicKey, SecretStorage } from "../types";
+import { Key, PrivateKey, PublicKey, SecretStorage } from "../types";
 import { ErrorCode, KeystoreError } from "./error";
 
 export async function getKeys(
@@ -19,12 +19,12 @@ export async function getKeys(
 
 export async function importRaw(
     context: Context,
-    params: { privateKey: string; passphrase?: string; keyType: KeyType }
+    params: { privateKey: PrivateKey; passphrase?: string; keyType: KeyType }
 ): Promise<Key> {
     const publicKey = await KeysModel.importRaw(context, params);
     const key = keyFromPublicKey(params.keyType, publicKey);
 
-    MappingModel.addMapping(context, {
+    MappingModel.add(context, {
         key,
         value: publicKey
     });
@@ -34,7 +34,7 @@ export async function importRaw(
 
 export async function exportKey(
     context: Context,
-    params: { key: string; passphrase: string; keyType: KeyType }
+    params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<SecretStorage> {
     const publicKey = await MappingModel.getPublicKey(context, params);
     if (publicKey === null) {
@@ -54,7 +54,7 @@ export async function importKey(
     const publicKey = await KeysModel.importKey(context, params);
     const key = keyFromPublicKey(params.keyType, publicKey);
 
-    MappingModel.addMapping(context, {
+    MappingModel.add(context, {
         key,
         value: publicKey
     });
@@ -69,7 +69,7 @@ export async function createKey(
     const publicKey = await KeysModel.createKey(context, params);
     const key = keyFromPublicKey(params.keyType, publicKey);
 
-    MappingModel.addMapping(context, {
+    MappingModel.add(context, {
         key,
         value: publicKey
     });
@@ -103,7 +103,7 @@ export async function deleteKey(
     });
 
     if (result) {
-        MappingModel.removeMapping(context, {
+        MappingModel.remove(context, {
             key: params.key
         });
     }

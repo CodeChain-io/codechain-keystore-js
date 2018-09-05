@@ -2,7 +2,7 @@ import { closeContext, Context, createContext } from "./context";
 import * as KeysLogic from "./logic/keys";
 import { KeyType } from "./model/keys";
 import * as MappingModel from "./model/mapping";
-import { Key, PublicKey, SecretStorage } from "./types";
+import { Key, PrivateKey, PublicKey, SecretStorage } from "./types";
 
 export { SecretStorage };
 
@@ -58,7 +58,10 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
             return KeysLogic.getKeys(context, { keyType });
         },
 
-        importRaw: (params: { privateKey: string; passphrase?: string }) => {
+        importRaw: (params: {
+            privateKey: PrivateKey;
+            passphrase?: string;
+        }) => {
             return KeysLogic.importRaw(context, { ...params, keyType });
         },
 
