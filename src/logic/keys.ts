@@ -62,6 +62,18 @@ export async function importKey(
     return key;
 }
 
+export async function exportRawKey(
+    context: Context,
+    params: { key: Key; passphrase: string; keyType: KeyType }
+): Promise<Key> {
+    const publicKey = await MappingModel.getPublicKey(context, params);
+    if (publicKey === null) {
+        throw new KeystoreError(ErrorCode.NoSuchKey);
+    }
+    const newParams = { ...params, publicKey };
+    return KeysModel.exportRawKey(context, newParams);
+}
+
 export async function createKey(
     context: Context,
     params: { passphrase?: string; keyType: KeyType }

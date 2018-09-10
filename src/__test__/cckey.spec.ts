@@ -74,6 +74,20 @@ test("platform.exportKey", async () => {
     expect(storage.crypto).toHaveProperty("mac");
 });
 
+test("platform.exportRawKey", async () => {
+    const privateKey =
+        "a05f81608217738d99da8fd227897b87e8890d3c9159b559c7c8bbd408e5fb6e";
+    const key = await cckey.platform.importRaw({
+        privateKey,
+        passphrase: "satoshi"
+    });
+    const exportedPrivateKey = await cckey.platform.exportRawKey({
+        key,
+        passphrase: "satoshi"
+    });
+    expect(exportedPrivateKey).toBe(privateKey);
+});
+
 test("platform.createKey", async () => {
     const key = await cckey.platform.createKey({ passphrase: "satoshi" });
     expect(key).toBeTruthy();
