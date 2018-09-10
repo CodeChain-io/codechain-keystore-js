@@ -19,6 +19,11 @@ export declare function importKey(context: Context, params: {
     passphrase: string;
     keyType: KeyType;
 }): Promise<Key>;
+export declare function exportRawKey(context: Context, params: {
+    key: Key;
+    passphrase: string;
+    keyType: KeyType;
+}): Promise<Key>;
 export declare function createKey(context: Context, params: {
     passphrase?: string;
     keyType: KeyType;

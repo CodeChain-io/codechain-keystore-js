@@ -1,4 +1,4 @@
-import { Key, PublicKey, SecretStorage } from "./types";
+import { Key, PrivateKey, PublicKey, SecretStorage } from "./types";
 export { SecretStorage };
 export interface KeyStore {
     getKeys(): Promise<Key[]>;
@@ -14,6 +14,10 @@ export interface KeyStore {
         secret: SecretStorage;
         passphrase: string;
     }): Promise<Key>;
+    exportRawKey(params: {
+        key: Key;
+        passphrase: string;
+    }): Promise<PrivateKey>;
     getPublicKey(params: {
         key: Key;
     }): Promise<PublicKey | null>;

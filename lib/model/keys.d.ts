@@ -30,6 +30,11 @@ export declare function deleteKey(context: Context, params: {
     publicKey: PublicKey;
     keyType: KeyType;
 }): Promise<boolean>;
+export declare function exportRawKey(context: Context, params: {
+    publicKey: PublicKey;
+    passphrase: string;
+    keyType: KeyType;
+}): Promise<string>;
 export declare function sign(context: Context, params: {
     publicKey: PublicKey;
     message: string;
