@@ -17,6 +17,7 @@ export interface KeyStore {
         secret: SecretStorage;
         passphrase: string;
     }): Promise<Key>;
+    exportRawKey(params: { key: Key; passphrase: string }): Promise<PrivateKey>;
     getPublicKey(params: { key: Key }): Promise<PublicKey | null>;
     createKey(params: { passphrase?: string }): Promise<Key>;
     deleteKey(params: { key: Key }): Promise<boolean>;
@@ -71,6 +72,10 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
 
         importKey: (params: { secret: SecretStorage; passphrase: string }) => {
             return KeysLogic.importKey(context, { ...params, keyType });
+        },
+
+        exportRawKey: (params: { key: Key; passphrase: string }) => {
+            return KeysLogic.exportRawKey(context, { ...params, keyType });
         },
 
         getPublicKey: (params: { key: Key }) => {

@@ -133,6 +133,19 @@ async function removeKey(
     await collection.remove({ publicKey: params.publicKey }).write();
 }
 
+export async function exportRawKey(
+    context: Context,
+    params: { publicKey: PublicKey; passphrase: string; keyType: KeyType }
+) {
+    const key = await getKeyPair(context, params);
+    if (key === null) {
+        throw new KeystoreError(ErrorCode.NoSuchKey);
+    }
+
+    const privateKey = decode(JSON.parse(key.secret), params.passphrase);
+    return privateKey;
+}
+
 export async function sign(
     context: Context,
     params: {
