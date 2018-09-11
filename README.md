@@ -17,7 +17,7 @@ async function example() {
   const savedKeys_ = await cckey.platform.getKeys();
   console.dir(savedKeys_);
 
-  await await cckey.close();
+  await cckey.close();
 };
 example();
 
