@@ -26,4 +26,4 @@ example();
 How your private key is saved
 -------------------
 
-We use SQLite to save an encrypted private key. You can find the SQLite file in `./keystore.db`
+We use a JSON file to save an encrypted private key. You can find the file in `./keystore.db`
