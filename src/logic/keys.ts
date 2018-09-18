@@ -1,5 +1,4 @@
-import { H256 } from "codechain-sdk/lib/core/classes";
-import { blake256, getAccountIdFromPublic } from "codechain-sdk/lib/utils";
+import { blake256, getAccountIdFromPublic, H256 } from "codechain-primitives";
 import { Context } from "../context";
 import { KeyType } from "../model/keys";
 import * as KeysModel from "../model/keys";

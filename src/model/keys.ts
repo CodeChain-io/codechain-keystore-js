@@ -2,7 +2,7 @@ import {
     generatePrivateKey,
     getPublicFromPrivate,
     signEcdsa
-} from "codechain-sdk/lib/utils";
+} from "codechain-primitives";
 import * as _ from "lodash";
 import { Context } from "../context";
 import { ErrorCode, KeystoreError } from "../logic/error";
