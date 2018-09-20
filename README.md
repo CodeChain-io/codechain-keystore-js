@@ -1,4 +1,4 @@
-CodeChain keystore [![Build Status](https://travis-ci.org/CodeChain-io/codechain-keystore.svg?branch=master)](https://travis-ci.org/CodeChain-io/codechain-keystore)
+CodeChain keystore [![Build Status](https://travis-ci.org/CodeChain-io/codechain-keystore-js.svg?branch=master)](https://travis-ci.org/CodeChain-io/codechain-keystore-js)
 ===================
 
 CodeChain keystore is a private key management library. It saves CodeChain's asset transfer address safely in a disk. If you want to manage CodeChain keys using nodejs, you should use this.
