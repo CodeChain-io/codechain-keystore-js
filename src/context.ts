@@ -1,4 +1,5 @@
-import * as lowdb from "lowdb";
+import * as Lowdb from "lowdb";
+import lowdb = require("lowdb");
 import { initialize as dbInitialize } from "./model/initialize";
 
 declare var window: any;
@@ -11,7 +12,7 @@ const persistentAdapter = isBrowser()
     : require("lowdb/adapters/LocalStorage");
 
 export interface Context {
-    db: lowdb.LowdbAsync<any>;
+    db: Lowdb.LowdbAsync<any>;
 }
 
 export async function createContext(params: {
