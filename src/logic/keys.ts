@@ -1,4 +1,4 @@
-import { blake256, getAccountIdFromPublic, H256 } from "codechain-primitives";
+import { blake160, getAccountIdFromPublic, H160 } from "codechain-primitives";
 import { Context } from "../context";
 import { KeyType } from "../model/keys";
 import * as KeysModel from "../model/keys";
@@ -93,7 +93,7 @@ export function keyFromPublicKey(type: KeyType, publicKey: PublicKey): Key {
         case KeyType.Platform:
             return getAccountIdFromPublic(publicKey);
         case KeyType.Asset:
-            return H256.ensure(blake256(publicKey)).value;
+            return H160.ensure(blake160(publicKey)).value;
         default:
             throw new Error("Invalid key type");
     }
