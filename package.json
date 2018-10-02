@@ -1,6 +1,6 @@
 {
   "name": "codechain-keystore",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": "CodeChain Team <codechain@kodebox.io>",
   "license": "ISC",
   "scripts": {
@@ -23,7 +23,7 @@
     "lib"
   ],
   "dependencies": {
-    "codechain-primitives": "^0.1.0-rc2",
+    "codechain-primitives": "^0.2.0",
     "config": "^2.0.1",
     "lodash": "^4.17.10",
     "lowdb": "^1.0.0",
