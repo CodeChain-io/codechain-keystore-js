@@ -128,3 +128,29 @@ test("platform.deleteKey", async () => {
     expect(publicKey1).toEqual(null);
     expect(publicKey2).toEqual(originPublicKey2);
 });
+
+test("platform.exportAndImport", async () => {
+    const createdKey = await cckey.platform.createKey({
+        passphrase: "satoshi"
+    });
+    expect(createdKey).toBeTruthy();
+    expect(createdKey.length).toBe(40);
+
+    const secret = await cckey.platform.exportKey({
+        key: createdKey,
+        passphrase: "satoshi"
+    });
+    expect(secret).toHaveProperty("crypto");
+    expect(secret.crypto).toHaveProperty("cipher");
+    expect(secret.crypto).toHaveProperty("cipherparams");
+    expect(secret.crypto).toHaveProperty("ciphertext");
+    expect(secret.crypto).toHaveProperty("kdf");
+    expect(secret.crypto).toHaveProperty("kdfparams");
+    expect(secret.crypto).toHaveProperty("mac");
+
+    const importedKey = await cckey.platform.importKey({
+        secret,
+        passphrase: "satoshi"
+    });
+    expect(createdKey).toBe(importedKey);
+});
