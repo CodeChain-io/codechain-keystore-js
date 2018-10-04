@@ -52,7 +52,7 @@ export function encode(privateKey: PrivateKey, passphrase: string): string {
         iv
     );
     const ciphertext: any = Buffer.concat([
-        cipher.update(privateKey),
+        cipher.update(Buffer.from(privateKey, "hex")),
         cipher.final()
     ]);
 
@@ -101,7 +101,7 @@ export function decode(json: SecretStorage, passphrase: string): string {
         Buffer.from(json.crypto.cipherparams.iv, "hex")
     );
     const privateKey = decipherBuffer(decipher, ciphertext);
-    return privateKey.toString();
+    return privateKey.toString("hex");
 }
 
 function decipherBuffer(decipher: crypto.Decipher, data: Buffer): Buffer {

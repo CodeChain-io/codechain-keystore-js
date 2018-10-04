@@ -28,21 +28,21 @@ test("platform.importKey", async () => {
     const secret = {
         crypto: {
             ciphertext:
-                "80e5af055f9ecf4a7a851045db47cddd80d9d2554989fa02ca833b5ee2e29b5e1508e0895dad386bc6e7187c4352854900fd9ac1827a8895adb9ce195bc7e009",
-            cipherparams: { iv: "0212752ab377bbaf42f660689d7711ec" },
+                "4f870523e834408c08ace7df91671a2b603761f0dbbfd93fa31a5dcda9947515",
+            cipherparams: { iv: "c47d44a36824ee5207cf435795e7e583" },
             cipher: "aes-128-ctr",
             kdf: "pbkdf2",
             kdfparams: {
                 dklen: 32,
                 salt:
-                    "b4090e3a7aff620aa18df490feb24d882efc4373e643c91d810d58758f0ff47a",
+                    "d187b8eaacbed337261728f33d1dbd51f9532dda82d8c7b8abe4860d2505c43f",
                 c: 262144,
                 prf: "hmac-sha256"
             },
             mac:
-                "54ba7bfd7f0d527f172c7bc4db08d0e876d17c240cf2a39ce34e8e434efc1543"
+                "d75a7c45d4c2c4fa4a7b81319e94e27848b188cfed949524f9e6f3b83c66d518"
         },
-        id: "374348c6-3eda-4bec-8365-6966ce884210",
+        id: "31ea5ae9-dad4-4a5a-9a8e-9a9de80d619e",
         version: 3
     };
     const key = await cckey.platform.importKey({
