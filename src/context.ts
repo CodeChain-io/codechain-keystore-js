@@ -4,12 +4,12 @@ import { initialize as dbInitialize } from "./model/initialize";
 
 declare var window: any;
 function isBrowser() {
-    return typeof window === "undefined";
+    return typeof window !== "undefined";
 }
 
 const persistentAdapter = isBrowser()
-    ? require("lowdb/adapters/FileSync")
-    : require("lowdb/adapters/LocalStorage");
+    ? require("lowdb/adapters/LocalStorage")
+    : require("lowdb/adapters/FileSync");
 
 export interface Context {
     db: Lowdb.LowdbAsync<any>;
