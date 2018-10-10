@@ -2,7 +2,6 @@ import { blake160, getAccountIdFromPublic, H160 } from "codechain-primitives";
 import { Context } from "../context";
 import { KeyType } from "../model/keys";
 import * as KeysModel from "../model/keys";
-import * as MappingModel from "../model/mapping";
 import { Key, PrivateKey, PublicKey, SecretStorage } from "../types";
 import { ErrorCode, KeystoreError } from "./error";
 
@@ -16,26 +15,31 @@ export async function getKeys(
     );
 }
 
+export async function getPublicKey(
+    context: Context,
+    params: { key: Key; keyType: KeyType }
+): Promise<PublicKey | null> {
+    const publicKeys = await KeysModel.getPublicKeys(context, params);
+    return (
+        publicKeys.find(
+            publicKey =>
+                params.key === keyFromPublicKey(params.keyType, publicKey)
+        ) || null
+    );
+}
 export async function importRaw(
     context: Context,
     params: { privateKey: PrivateKey; passphrase?: string; keyType: KeyType }
 ): Promise<Key> {
     const publicKey = await KeysModel.importRaw(context, params);
-    const key = keyFromPublicKey(params.keyType, publicKey);
-
-    MappingModel.add(context, {
-        key,
-        value: publicKey
-    });
-
-    return key;
+    return keyFromPublicKey(params.keyType, publicKey);
 }
 
 export async function exportKey(
     context: Context,
     params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<SecretStorage> {
-    const publicKey = await MappingModel.getPublicKey(context, params);
+    const publicKey = await getPublicKey(context, params);
     if (publicKey == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
@@ -51,21 +55,14 @@ export async function importKey(
     params: { secret: SecretStorage; passphrase: string; keyType: KeyType }
 ): Promise<Key> {
     const publicKey = await KeysModel.importKey(context, params);
-    const key = keyFromPublicKey(params.keyType, publicKey);
-
-    MappingModel.add(context, {
-        key,
-        value: publicKey
-    });
-
-    return key;
+    return keyFromPublicKey(params.keyType, publicKey);
 }
 
 export async function exportRawKey(
     context: Context,
     params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<Key> {
-    const publicKey = await MappingModel.getPublicKey(context, params);
+    const publicKey = await getPublicKey(context, params);
     if (publicKey == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
@@ -78,14 +75,7 @@ export async function createKey(
     params: { passphrase?: string; keyType: KeyType }
 ): Promise<Key> {
     const publicKey = await KeysModel.createKey(context, params);
-    const key = keyFromPublicKey(params.keyType, publicKey);
-
-    MappingModel.add(context, {
-        key,
-        value: publicKey
-    });
-
-    return key;
+    return keyFromPublicKey(params.keyType, publicKey);
 }
 
 export function keyFromPublicKey(type: KeyType, publicKey: PublicKey): Key {
@@ -103,23 +93,15 @@ export async function deleteKey(
     context: Context,
     params: { key: Key; keyType: KeyType }
 ): Promise<boolean> {
-    const publicKey = await MappingModel.getPublicKey(context, params);
+    const publicKey = await getPublicKey(context, params);
     if (publicKey == null) {
         return false;
     }
 
-    const result = await KeysModel.deleteKey(context, {
+    return await KeysModel.deleteKey(context, {
         keyType: params.keyType,
         publicKey
     });
-
-    if (result) {
-        MappingModel.remove(context, {
-            key: params.key
-        });
-    }
-
-    return result;
 }
 
 export async function sign(
@@ -131,7 +113,7 @@ export async function sign(
         keyType: KeyType;
     }
 ): Promise<string> {
-    const publicKey = await MappingModel.getPublicKey(context, params);
+    const publicKey = await getPublicKey(context, params);
     if (publicKey == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }

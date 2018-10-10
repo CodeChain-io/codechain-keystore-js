@@ -1,7 +1,6 @@
 import { closeContext, Context, createContext } from "./context";
 import * as KeysLogic from "./logic/keys";
 import { KeyType } from "./model/keys";
-import * as MappingModel from "./model/mapping";
 import { Key, PrivateKey, PublicKey, SecretStorage } from "./types";
 
 export { SecretStorage };
@@ -79,7 +78,7 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
         },
 
         getPublicKey: (params: { key: Key }) => {
-            return MappingModel.getPublicKey(context, params);
+            return KeysLogic.getPublicKey(context, { ...params, keyType });
         },
 
         createKey: (params: { passphrase?: string }) => {
