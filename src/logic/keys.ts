@@ -36,7 +36,7 @@ export async function exportKey(
     params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<SecretStorage> {
     const publicKey = await MappingModel.getPublicKey(context, params);
-    if (publicKey === null) {
+    if (publicKey == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
     return KeysModel.exportKey(context, {
@@ -66,7 +66,7 @@ export async function exportRawKey(
     params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<Key> {
     const publicKey = await MappingModel.getPublicKey(context, params);
-    if (publicKey === null) {
+    if (publicKey == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
     const newParams = { ...params, publicKey };
@@ -104,7 +104,7 @@ export async function deleteKey(
     params: { key: Key; keyType: KeyType }
 ): Promise<boolean> {
     const publicKey = await MappingModel.getPublicKey(context, params);
-    if (publicKey === null) {
+    if (publicKey == null) {
         return false;
     }
 
@@ -132,7 +132,7 @@ export async function sign(
     }
 ): Promise<string> {
     const publicKey = await MappingModel.getPublicKey(context, params);
-    if (publicKey === null) {
+    if (publicKey == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
     const newParams = { ...params, publicKey };

@@ -52,7 +52,7 @@ export async function exportKey(
     params: { publicKey: PublicKey; passphrase: string; keyType: KeyType }
 ): Promise<SecretStorage> {
     const key = await getKeyPair(context, params);
-    if (key === null) {
+    if (key == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
     const json = JSON.parse(key.secret);
@@ -103,7 +103,7 @@ export async function deleteKey(
     params: { publicKey: PublicKey; keyType: KeyType }
 ): Promise<boolean> {
     const key = await getKeyPair(context, params);
-    if (key === null) {
+    if (key == null) {
         return false;
     }
 
@@ -138,7 +138,7 @@ export async function exportRawKey(
     params: { publicKey: PublicKey; passphrase: string; keyType: KeyType }
 ) {
     const key = await getKeyPair(context, params);
-    if (key === null) {
+    if (key == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
 
@@ -156,7 +156,7 @@ export async function sign(
     }
 ): Promise<string> {
     const key = await getKeyPair(context, params);
-    if (key === null) {
+    if (key == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
 
