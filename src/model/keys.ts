@@ -30,7 +30,7 @@ function getTableName(type: KeyType) {
     }
 }
 
-export async function getKeys(
+export async function getPublicKeys(
     context: Context,
     params: { keyType: KeyType }
 ): Promise<PublicKey[]> {

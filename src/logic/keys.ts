@@ -10,7 +10,7 @@ export async function getKeys(
     context: Context,
     params: { keyType: KeyType }
 ): Promise<Key[]> {
-    const publicKeys = await KeysModel.getKeys(context, params);
+    const publicKeys = await KeysModel.getPublicKeys(context, params);
     return publicKeys.map(publicKey =>
         keyFromPublicKey(params.keyType, publicKey)
     );
