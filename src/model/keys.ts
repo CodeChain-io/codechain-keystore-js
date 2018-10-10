@@ -1,7 +1,7 @@
 import {
     generatePrivateKey,
     getPublicFromPrivate,
-    signEcdsa
+    signSchnorr
 } from "codechain-primitives";
 import * as _ from "lodash";
 import { Context } from "../context";
@@ -161,11 +161,7 @@ export async function sign(
     }
 
     const privateKey = decode(JSON.parse(key.secret), params.passphrase);
-    const { r, s, v } = signEcdsa(params.message, privateKey);
-    const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
-        v.toString(16),
-        2,
-        "0"
-    )}`;
+    const { r, s } = signSchnorr(params.message, privateKey);
+    const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}`;
     return sig;
 }

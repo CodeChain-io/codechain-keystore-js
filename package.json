@@ -23,7 +23,7 @@
     "lib"
   ],
   "dependencies": {
-    "codechain-primitives": "^0.3.0",
+    "codechain-primitives": "^0.3.4",
     "config": "^2.0.1",
     "lodash": "^4.17.10",
     "lowdb": "^1.0.0",
