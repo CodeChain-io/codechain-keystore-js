@@ -5,7 +5,7 @@ import { KeyType } from "../model/keys";
 let cckey: CCKey;
 
 beforeEach(async () => {
-    cckey = await CCKey.create({ useMemoryDB: true });
+    cckey = await CCKey.create({ dbType: "in-memory" });
 });
 
 afterEach(async () => {

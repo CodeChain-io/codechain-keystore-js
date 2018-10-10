@@ -36,13 +36,16 @@ class CCKey {
 
     public static async create(
         params: {
-            useMemoryDB?: boolean;
+            dbType?: string;
             dbPath?: string;
         } = {}
     ): Promise<CCKey> {
-        const useMemoryDB = params.useMemoryDB || false;
+        const dbType = params.dbType || "persistent";
         const dbPath = params.dbPath || "keystore.db";
-        const context = await createContext({ useMemoryDB, dbPath });
+        const context = await createContext({
+            dbType,
+            dbPath
+        });
         return new CCKey(context);
     }
 
