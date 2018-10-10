@@ -10,7 +10,7 @@ import { decode, encode } from "../logic/storage";
 import { PrivateKey, PublicKey, SecretStorage } from "../types";
 
 interface KeyPair {
-    secret: string;
+    secret: SecretStorage;
     publicKey: PublicKey;
 }
 
@@ -55,7 +55,7 @@ export async function exportKey(
     if (key == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
-    const json = JSON.parse(key.secret);
+    const json = key.secret;
     decode(json, params.passphrase); // Throws an error if the passphrase is incorrect.
     return json;
 }
@@ -142,7 +142,7 @@ export async function exportRawKey(
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
 
-    const privateKey = decode(JSON.parse(key.secret), params.passphrase);
+    const privateKey = decode(key.secret, params.passphrase);
     return privateKey;
 }
 
@@ -160,7 +160,7 @@ export async function sign(
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
 
-    const privateKey = decode(JSON.parse(key.secret), params.passphrase);
+    const privateKey = decode(key.secret, params.passphrase);
     const { r, s, v } = signEcdsa(params.message, privateKey);
     const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
         v.toString(16),

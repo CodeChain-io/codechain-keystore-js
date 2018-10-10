@@ -28,7 +28,10 @@ import { PrivateKey } from "../types";
 import { ErrorCode, KeystoreError } from "./error";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
-export function encode(privateKey: PrivateKey, passphrase: string): string {
+export function encode(
+    privateKey: PrivateKey,
+    passphrase: string
+): SecretStorage {
     const salt = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
 
@@ -63,7 +66,7 @@ export function encode(privateKey: PrivateKey, passphrase: string): string {
         ])
     );
 
-    return JSON.stringify({
+    return {
         crypto: {
             ciphertext: ciphertext.toString("hex"),
             cipherparams: {
@@ -78,7 +81,7 @@ export function encode(privateKey: PrivateKey, passphrase: string): string {
             random: Array.prototype.slice.call(crypto.randomBytes(16), 0)
         }),
         version: 3
-    });
+    };
 }
 
 export function decode(json: SecretStorage, passphrase: string): string {
