@@ -25,6 +25,7 @@ export interface SecretStorage {
         };
         mac: string;
     };
+    meta: string;
     id: string;
     version: number;
 }

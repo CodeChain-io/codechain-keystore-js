@@ -10,6 +10,7 @@ export interface KeyStore {
     importRaw(params: {
         privateKey: PublicKey;
         passphrase?: string;
+        meta?: string;
     }): Promise<Key>;
     exportKey(params: { key: Key; passphrase: string }): Promise<SecretStorage>;
     importKey(params: {
@@ -69,6 +70,7 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
         importRaw: (params: {
             privateKey: PrivateKey;
             passphrase?: string;
+            meta?: string;
         }) => {
             return KeysLogic.importRaw(context, { ...params, keyType });
         },

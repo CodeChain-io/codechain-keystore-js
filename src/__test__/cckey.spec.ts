@@ -43,7 +43,8 @@ test("platform.importKey", async () => {
                 "d75a7c45d4c2c4fa4a7b81319e94e27848b188cfed949524f9e6f3b83c66d518"
         },
         id: "31ea5ae9-dad4-4a5a-9a8e-9a9de80d619e",
-        version: 3
+        version: 3,
+        meta: "some meta info"
     };
     const key = await cckey.platform.importKey({
         secret,
@@ -72,6 +73,40 @@ test("platform.exportKey", async () => {
     expect(storage.crypto).toHaveProperty("kdf");
     expect(storage.crypto).toHaveProperty("kdfparams");
     expect(storage.crypto).toHaveProperty("mac");
+    expect(storage).toHaveProperty("meta");
+});
+
+test("platform.importKeyWithMeta", async () => {
+    const secret = {
+        crypto: {
+            ciphertext:
+                "4f870523e834408c08ace7df91671a2b603761f0dbbfd93fa31a5dcda9947515",
+            cipherparams: { iv: "c47d44a36824ee5207cf435795e7e583" },
+            cipher: "aes-128-ctr",
+            kdf: "pbkdf2",
+            kdfparams: {
+                dklen: 32,
+                salt:
+                    "d187b8eaacbed337261728f33d1dbd51f9532dda82d8c7b8abe4860d2505c43f",
+                c: 262144,
+                prf: "hmac-sha256"
+            },
+            mac:
+                "d75a7c45d4c2c4fa4a7b81319e94e27848b188cfed949524f9e6f3b83c66d518"
+        },
+        id: "31ea5ae9-dad4-4a5a-9a8e-9a9de80d619e",
+        version: 3,
+        meta: "some meta info"
+    };
+    const key = await cckey.platform.importKey({
+        secret,
+        passphrase: "satoshi"
+    });
+    const storage = await cckey.platform.exportKey({
+        key,
+        passphrase: "satoshi"
+    });
+    expect(storage.meta).toBe("some meta info");
 });
 
 test("platform.exportRawKey", async () => {

@@ -29,7 +29,12 @@ export async function getPublicKey(
 }
 export async function importRaw(
     context: Context,
-    params: { privateKey: PrivateKey; passphrase?: string; keyType: KeyType }
+    params: {
+        privateKey: PrivateKey;
+        passphrase?: string;
+        keyType: KeyType;
+        meta?: string;
+    }
 ): Promise<Key> {
     const publicKey = await KeysModel.importRaw(context, params);
     return keyFromPublicKey(params.keyType, publicKey);
