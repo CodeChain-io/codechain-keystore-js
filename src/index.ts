@@ -18,7 +18,10 @@ export interface KeyStore {
         passphrase: string;
     }): Promise<Key>;
     exportRawKey(params: { key: Key; passphrase: string }): Promise<PrivateKey>;
-    getPublicKey(params: { key: Key }): Promise<PublicKey | null>;
+    getPublicKey(params: {
+        key: Key;
+        passphrase: string;
+    }): Promise<PublicKey | null>;
     createKey(params: { passphrase?: string }): Promise<Key>;
     deleteKey(params: { key: Key }): Promise<boolean>;
     sign(params: {
@@ -87,7 +90,7 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
             return KeysLogic.exportRawKey(context, { ...params, keyType });
         },
 
-        getPublicKey: (params: { key: Key }) => {
+        getPublicKey: (params: { key: Key; passphrase: string }) => {
             return KeysLogic.getPublicKey(context, { ...params, keyType });
         },
 

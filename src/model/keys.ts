@@ -43,14 +43,15 @@ export async function getKeys(
     ) as Key[];
 }
 
-export async function getPublicKeys(
+export async function getPublicKey(
     context: Context,
-    params: { keyType: KeyType }
-): Promise<PublicKey[]> {
-    const rows: any = await context.db
-        .get(getTableName(params.keyType))
-        .value();
-    return _.map(rows, ({ publicKey }) => publicKey);
+    params: { key: Key; passphrase: string; keyType: KeyType }
+): Promise<PublicKey | null> {
+    const secret = await getSecretStorage(context, params);
+    if (secret == null) {
+        return null;
+    }
+    return decode(secret, params.passphrase);
 }
 
 export function importRaw(

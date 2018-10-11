@@ -13,16 +13,11 @@ export async function getKeys(
 
 export async function getPublicKey(
     context: Context,
-    params: { key: Key; keyType: KeyType }
+    params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<PublicKey | null> {
-    const publicKeys = await KeysModel.getPublicKeys(context, params);
-    return (
-        publicKeys.find(
-            publicKey =>
-                params.key === keyFromPublicKey(params.keyType, publicKey)
-        ) || null
-    );
+    return await KeysModel.getPublicKey(context, params);
 }
+
 export async function importRaw(
     context: Context,
     params: {

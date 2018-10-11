@@ -146,19 +146,25 @@ test("platform.getKeys", async () => {
 });
 
 test("platform.deleteKey", async () => {
-    const key1 = await cckey.platform.createKey({ passphrase: "satoshi" });
-    const key2 = await cckey.platform.createKey({ passphrase: "satoshi" });
-    const originPublicKey2 = await cckey.platform.getPublicKey({ key: key2 });
+    const passphrase = "satoshi";
+    const key1 = await cckey.platform.createKey({ passphrase });
+    const key2 = await cckey.platform.createKey({ passphrase });
+    const originPublicKey2 = await cckey.platform.getPublicKey({
+        key: key2,
+        passphrase
+    });
     await cckey.platform.deleteKey({ key: key1 });
 
     const keys = await cckey.platform.getKeys();
     expect(keys).toEqual([key2]);
 
     const publicKey1 = await cckey.platform.getPublicKey({
-        key: key1
+        key: key1,
+        passphrase
     });
     const publicKey2 = await cckey.platform.getPublicKey({
-        key: key2
+        key: key2,
+        passphrase
     });
     expect(publicKey1).toEqual(null);
     expect(publicKey2).toEqual(originPublicKey2);
