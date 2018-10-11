@@ -47,6 +47,14 @@ class CCKey {
 
     private constructor(private context: Context) {}
 
+    public getMeta(): Promise<string> {
+        return this.context.db.get("meta").value();
+    }
+
+    public setMeta(meta: string): Promise<string> {
+        return this.context.db.set("meta", meta).write();
+    }
+
     public close(): Promise<void> {
         return closeContext(this.context);
     }

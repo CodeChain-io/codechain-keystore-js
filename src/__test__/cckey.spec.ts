@@ -154,3 +154,14 @@ test("platform.exportAndImport", async () => {
     });
     expect(createdKey).toBe(importedKey);
 });
+
+test("meta.defaultEmptyString", async () => {
+    const meta = await cckey.getMeta();
+    expect(meta).toBe("");
+});
+
+test("meta.setMeta", async () => {
+    await cckey.setMeta("new meta");
+    const meta = await cckey.getMeta();
+    expect(meta).toBe("new meta");
+});
