@@ -9,11 +9,6 @@ import { ErrorCode, KeystoreError } from "../logic/error";
 import { decode, encode } from "../logic/storage";
 import { Key, PrivateKey, PublicKey, SecretStorage } from "../types";
 
-interface KeyPair {
-    secret: SecretStorage;
-    publicKey: PublicKey;
-}
-
 export enum KeyType {
     Platform,
     Asset
@@ -37,10 +32,7 @@ export async function getKeys(
     const rows: any = await context.db
         .get(getTableName(params.keyType))
         .value();
-    return _.map(
-        rows,
-        (key: { secret: SecretStorage }) => key.secret.address
-    ) as Key[];
+    return _.map(rows, (secret: SecretStorage) => secret.address) as Key[];
 }
 
 export async function getPublicKey(
@@ -117,12 +109,7 @@ async function createPublicKeyFromPrivateKey(
 
     const secret = encode(params.privateKey, params.keyType, passphrase, meta);
     const rows = context.db.get(getTableName(params.keyType));
-    await rows
-        .push({
-            secret,
-            publicKey
-        })
-        .write();
+    await rows.push(secret).write();
     return publicKey;
 }
 
@@ -144,17 +131,17 @@ async function getSecretStorage(
     params: { key: Key; keyType: KeyType }
 ): Promise<SecretStorage | null> {
     const collection = context.db.get(getTableName(params.keyType));
-    const row = await collection
+    const secret = await collection
         .find(
-            (key: { secret: SecretStorage }) =>
-                key.secret.address === params.key
+            (secretStorage: SecretStorage) =>
+                secretStorage.address === params.key
         )
         .value();
 
-    if (row == null) {
+    if (secret == null) {
         return null;
     }
-    return (row as KeyPair).secret;
+    return secret as SecretStorage;
 }
 
 async function removeKey(
@@ -163,10 +150,7 @@ async function removeKey(
 ): Promise<void> {
     const collection = context.db.get(getTableName(params.keyType));
     await collection
-        .remove(
-            (key: { secret: SecretStorage }) =>
-                key.secret.address === params.key
-        )
+        .remove((secret: SecretStorage) => secret.address === params.key)
         .write();
 }
 
