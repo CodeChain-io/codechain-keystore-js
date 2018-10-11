@@ -22,9 +22,9 @@ export enum KeyType {
 function getTableName(type: KeyType) {
     switch (type) {
         case KeyType.Platform:
-            return "platform_keys";
+            return "platform";
         case KeyType.Asset:
-            return "asset_keys";
+            return "asset";
         default:
             throw new Error("Invalid key type");
     }
