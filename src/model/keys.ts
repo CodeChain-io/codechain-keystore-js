@@ -7,7 +7,7 @@ import * as _ from "lodash";
 import { Context } from "../context";
 import { ErrorCode, KeystoreError } from "../logic/error";
 import { decode, encode } from "../logic/storage";
-import { PrivateKey, PublicKey, SecretStorage } from "../types";
+import { Key, PrivateKey, PublicKey, SecretStorage } from "../types";
 
 interface KeyPair {
     secret: SecretStorage;
@@ -28,6 +28,19 @@ function getTableName(type: KeyType) {
         default:
             throw new Error("Invalid key type");
     }
+}
+
+export async function getKeys(
+    context: Context,
+    params: { keyType: KeyType }
+): Promise<Key[]> {
+    const rows: any = await context.db
+        .get(getTableName(params.keyType))
+        .value();
+    return _.map(
+        rows,
+        (key: { secret: SecretStorage }) => key.secret.address
+    ) as Key[];
 }
 
 export async function getPublicKeys(
@@ -54,15 +67,14 @@ export function importRaw(
 
 export async function exportKey(
     context: Context,
-    params: { publicKey: PublicKey; passphrase: string; keyType: KeyType }
+    params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<SecretStorage> {
-    const key = await getKeyPair(context, params);
-    if (key == null) {
+    const secret = await getSecretStorage(context, params);
+    if (secret == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
-    const json = key.secret;
-    decode(json, params.passphrase); // Throws an error if the passphrase is incorrect.
-    return json;
+    decode(secret, params.passphrase); // Throws an error if the passphrase is incorrect.
+    return secret;
 }
 
 export async function importKey(
@@ -102,7 +114,7 @@ async function createPublicKeyFromPrivateKey(
     const passphrase = params.passphrase || "";
     const meta = params.meta || "{}";
 
-    const secret = encode(params.privateKey, passphrase, meta);
+    const secret = encode(params.privateKey, params.keyType, passphrase, meta);
     const rows = context.db.get(getTableName(params.keyType));
     await rows
         .push({
@@ -115,10 +127,10 @@ async function createPublicKeyFromPrivateKey(
 
 export async function deleteKey(
     context: Context,
-    params: { publicKey: PublicKey; keyType: KeyType }
+    params: { key: Key; keyType: KeyType }
 ): Promise<boolean> {
-    const key = await getKeyPair(context, params);
-    if (key == null) {
+    const secret = await getSecretStorage(context, params);
+    if (secret == null) {
         return false;
     }
 
@@ -126,56 +138,64 @@ export async function deleteKey(
     return true;
 }
 
-async function getKeyPair(
+async function getSecretStorage(
     context: Context,
-    params: { publicKey: PublicKey; keyType: KeyType }
-): Promise<KeyPair | null> {
+    params: { key: Key; keyType: KeyType }
+): Promise<SecretStorage | null> {
     const collection = context.db.get(getTableName(params.keyType));
-    const row = await collection.find({ publicKey: params.publicKey }).value();
+    const row = await collection
+        .find(
+            (key: { secret: SecretStorage }) =>
+                key.secret.address === params.key
+        )
+        .value();
 
-    if (!row) {
+    if (row == null) {
         return null;
-    } else {
-        return row as KeyPair;
     }
+    return (row as KeyPair).secret;
 }
 
 async function removeKey(
     context: Context,
-    params: { publicKey: PublicKey; keyType: KeyType }
+    params: { key: Key; keyType: KeyType }
 ): Promise<void> {
     const collection = context.db.get(getTableName(params.keyType));
-    await collection.remove({ publicKey: params.publicKey }).write();
+    await collection
+        .remove(
+            (key: { secret: SecretStorage }) =>
+                key.secret.address === params.key
+        )
+        .write();
 }
 
 export async function exportRawKey(
     context: Context,
-    params: { publicKey: PublicKey; passphrase: string; keyType: KeyType }
+    params: { key: Key; passphrase: string; keyType: KeyType }
 ) {
-    const key = await getKeyPair(context, params);
-    if (key == null) {
+    const secret = await getSecretStorage(context, params);
+    if (secret == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
 
-    const privateKey = decode(key.secret, params.passphrase);
-    return privateKey;
+    return decode(secret, params.passphrase);
 }
 
 export async function sign(
     context: Context,
     params: {
-        publicKey: PublicKey;
+        key: Key;
         message: string;
         passphrase: string;
         keyType: KeyType;
     }
 ): Promise<string> {
-    const key = await getKeyPair(context, params);
-    if (key == null) {
+    const secret = await getSecretStorage(context, params);
+    if (secret == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
 
-    const privateKey = decode(key.secret, params.passphrase);
+    const privateKey = decode(secret, params.passphrase);
     const { r, s, v } = signEcdsa(params.message, privateKey);
     const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
         v.toString(16),

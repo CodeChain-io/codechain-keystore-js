@@ -20,19 +20,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { blake256 } from "codechain-primitives";
+import { blake256, getPublicFromPrivate } from "codechain-primitives";
 import * as crypto from "crypto";
 import * as uuid from "uuid";
 import { SecretStorage } from "..";
+import { KeyType } from "../model/keys";
 import { PrivateKey } from "../types";
 import { ErrorCode, KeystoreError } from "./error";
+import { keyFromPublicKey } from "./keys";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
 export function encode(
     privateKey: PrivateKey,
+    keyType: KeyType,
     passphrase: string,
     meta: string
 ): SecretStorage {
+    const publicKey = getPublicFromPrivate(privateKey);
+    const address = keyFromPublicKey(keyType, publicKey);
     const salt = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
 
@@ -82,6 +87,7 @@ export function encode(
             random: Array.prototype.slice.call(crypto.randomBytes(16), 0)
         }),
         version: 3,
+        address,
         meta
     };
 }

@@ -3,16 +3,12 @@ import { Context } from "../context";
 import { KeyType } from "../model/keys";
 import * as KeysModel from "../model/keys";
 import { Key, PrivateKey, PublicKey, SecretStorage } from "../types";
-import { ErrorCode, KeystoreError } from "./error";
 
 export async function getKeys(
     context: Context,
     params: { keyType: KeyType }
 ): Promise<Key[]> {
-    const publicKeys = await KeysModel.getPublicKeys(context, params);
-    return publicKeys.map(publicKey =>
-        keyFromPublicKey(params.keyType, publicKey)
-    );
+    return await KeysModel.getKeys(context, params);
 }
 
 export async function getPublicKey(
@@ -44,15 +40,7 @@ export async function exportKey(
     context: Context,
     params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<SecretStorage> {
-    const publicKey = await getPublicKey(context, params);
-    if (publicKey == null) {
-        throw new KeystoreError(ErrorCode.NoSuchKey);
-    }
-    return KeysModel.exportKey(context, {
-        passphrase: params.passphrase,
-        keyType: params.keyType,
-        publicKey
-    });
+    return KeysModel.exportKey(context, params);
 }
 
 export async function importKey(
@@ -67,12 +55,7 @@ export async function exportRawKey(
     context: Context,
     params: { key: Key; passphrase: string; keyType: KeyType }
 ): Promise<Key> {
-    const publicKey = await getPublicKey(context, params);
-    if (publicKey == null) {
-        throw new KeystoreError(ErrorCode.NoSuchKey);
-    }
-    const newParams = { ...params, publicKey };
-    return KeysModel.exportRawKey(context, newParams);
+    return KeysModel.exportRawKey(context, params);
 }
 
 export async function createKey(
@@ -98,15 +81,7 @@ export async function deleteKey(
     context: Context,
     params: { key: Key; keyType: KeyType }
 ): Promise<boolean> {
-    const publicKey = await getPublicKey(context, params);
-    if (publicKey == null) {
-        return false;
-    }
-
-    return await KeysModel.deleteKey(context, {
-        keyType: params.keyType,
-        publicKey
-    });
+    return await KeysModel.deleteKey(context, params);
 }
 
 export async function sign(
@@ -118,10 +93,5 @@ export async function sign(
         keyType: KeyType;
     }
 ): Promise<string> {
-    const publicKey = await getPublicKey(context, params);
-    if (publicKey == null) {
-        throw new KeystoreError(ErrorCode.NoSuchKey);
-    }
-    const newParams = { ...params, publicKey };
-    return KeysModel.sign(context, newParams);
+    return KeysModel.sign(context, params);
 }

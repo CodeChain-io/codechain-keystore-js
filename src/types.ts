@@ -26,6 +26,7 @@ export interface SecretStorage {
         mac: string;
     };
     meta: string;
+    address?: string;
     id: string;
     version: number;
 }
