@@ -90,3 +90,22 @@ export async function sign(
 ): Promise<string> {
     return KeysModel.sign(context, params);
 }
+
+export async function save(
+    context: Context,
+    params: {
+        keyType: KeyType;
+    }
+): Promise<SecretStorage[]> {
+    return KeysModel.save(context, params);
+}
+
+export async function load(
+    context: Context,
+    value: SecretStorage[],
+    params: {
+        keyType: KeyType;
+    }
+): Promise<void> {
+    return KeysModel.load(context, value, params);
+}

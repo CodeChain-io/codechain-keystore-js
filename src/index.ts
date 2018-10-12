@@ -31,6 +31,9 @@ export interface KeyStore {
         message: string;
         passphrase: string;
     }): Promise<string>;
+
+    save(): Promise<SecretStorage[]>;
+    load(value: SecretStorage[]): Promise<void>;
 }
 
 class CCKey {
@@ -115,6 +118,24 @@ class CCKey {
             asset
         });
     }
+
+    public async save(): Promise<string> {
+        const meta = await this.getMeta();
+        const platform = await this.platform.save();
+        const asset = await this.asset.save();
+        return JSON.stringify({
+            meta,
+            platform,
+            asset
+        });
+    }
+
+    public async load(value: string): Promise<void> {
+        const data = JSON.parse(value);
+        await this.setMeta(data.meta);
+        await this.platform.load(data.platform);
+        await this.asset.load(data.asset);
+    }
 }
 
 function createKeyStore(context: Context, keyType: KeyType): KeyStore {
@@ -157,6 +178,14 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
 
         sign: (params: { key: Key; message: string; passphrase: string }) => {
             return KeysLogic.sign(context, { ...params, keyType });
+        },
+
+        save: () => {
+            return KeysLogic.save(context, { keyType });
+        },
+
+        load: (value: SecretStorage[]) => {
+            return KeysLogic.load(context, value, { keyType });
         }
     };
 }

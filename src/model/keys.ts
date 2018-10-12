@@ -189,3 +189,22 @@ export async function sign(
     )}`;
     return sig;
 }
+
+export async function save(
+    context: Context,
+    params: {
+        keyType: KeyType;
+    }
+): Promise<SecretStorage[]> {
+    return await context.db.get(getTableName(params.keyType)).value();
+}
+
+export async function load(
+    context: Context,
+    value: SecretStorage[],
+    params: {
+        keyType: KeyType;
+    }
+): Promise<void> {
+    return context.db.set(getTableName(params.keyType), value).write();
+}
