@@ -2,7 +2,7 @@ import * as Lowdb from "lowdb";
 import lowdb = require("lowdb");
 import * as os from "os";
 import { initialize as dbInitialize } from "./model/initialize";
-import { getTableName, KeyType } from "./model/keys";
+import { clear, getTableName, KeyType } from "./model/keys";
 
 declare var window: any;
 function isBrowser() {
@@ -44,10 +44,13 @@ export async function storageExist(params: {
     dbPath: string;
 }): Promise<boolean> {
     const db = await lowdb(getAdapter(params));
+    const meta = db.get("meta").value();
+    const platform = db.get(getTableName(KeyType.Platform)).value();
+    const asset = db.get(getTableName(KeyType.Asset)).value();
     return (
-        db.get("meta").value() != null &&
-        db.get(getTableName(KeyType.Platform)).value() != null &&
-        db.get(getTableName(KeyType.Asset)).value() != null
+        (meta != null && meta !== "") ||
+        (platform != null && platform.length !== 0) ||
+        (asset != null && asset.length !== 0)
     );
 }
 
@@ -69,8 +72,8 @@ export async function createContext(params: {
 export async function closeContext(context: Context): Promise<void> {
     if (context.isVolatile) {
         await context.db.unset("meta").write();
-        await context.db.unset(getTableName(KeyType.Platform)).write();
-        await context.db.unset(getTableName(KeyType.Asset)).write();
+        await clear(context, { keyType: KeyType.Asset });
+        await clear(context, { keyType: KeyType.Platform });
     }
     return Promise.resolve(context.db.write());
 }

@@ -219,3 +219,10 @@ export async function load(
 ): Promise<void> {
     return context.db.set(getTableName(params.keyType), value).write();
 }
+
+export async function clear(
+    context: Context,
+    params: { keyType: KeyType }
+): Promise<void> {
+    await context.db.unset(getTableName(params.keyType)).write();
+}

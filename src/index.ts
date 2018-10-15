@@ -2,6 +2,7 @@ import { getPublicFromPrivate } from "codechain-primitives";
 import { closeContext, Context, createContext, storageExist } from "./context";
 import * as KeysLogic from "./logic/keys";
 import { decode } from "./logic/storage";
+import { initialize as dbInitialize } from "./model/initialize";
 import { KeyType } from "./model/keys";
 import { Key, PrivateKey, PublicKey, SecretStorage } from "./types";
 
@@ -36,6 +37,8 @@ export interface KeyStore {
 
     save(): Promise<SecretStorage[]>;
     load(value: SecretStorage[]): Promise<void>;
+
+    clear(): Promise<void>;
 }
 
 class CCKey {
@@ -148,6 +151,13 @@ class CCKey {
         await this.platform.load(data.platform);
         await this.asset.load(data.asset);
     }
+
+    public async clear(): Promise<void> {
+        await this.context.db.unset("meta").write();
+        await this.platform.clear();
+        await this.asset.clear();
+        await dbInitialize(this.context.db);
+    }
 }
 
 function createKeyStore(context: Context, keyType: KeyType): KeyStore {
@@ -202,6 +212,10 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
 
         load: (value: SecretStorage[]) => {
             return KeysLogic.load(context, value, { keyType });
+        },
+
+        clear: () => {
+            return KeysLogic.clear(context, { keyType });
         }
     };
 }

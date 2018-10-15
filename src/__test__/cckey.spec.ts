@@ -29,4 +29,13 @@ describe("cckey", () => {
         expect(await cckey.asset.getKeys()).toEqual([assetKey]);
         expect(await newCckey.getMeta()).toBe("new meta data");
     });
+
+    test("clear removes key", async () => {
+        const createdKey = await cckey.platform.createKey({
+            passphrase: "satoshi"
+        });
+        expect(await cckey.platform.getKeys()).toEqual([createdKey]);
+        await cckey.clear();
+        expect(await cckey.platform.getKeys()).toEqual([]);
+    });
 });

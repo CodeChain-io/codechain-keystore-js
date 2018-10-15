@@ -212,4 +212,13 @@ describe("platform", () => {
         const meta = await cckey.platform.getMeta({ key: createdKey });
         expect(meta).toBe('{"name": "test"}');
     });
+
+    test("clear removes key", async () => {
+        const createdKey = await cckey.platform.createKey({
+            passphrase: "satoshi"
+        });
+        expect(await cckey.platform.getKeys()).toEqual([createdKey]);
+        await cckey.platform.clear();
+        expect(await cckey.platform.getKeys()).toEqual([]);
+    });
 });

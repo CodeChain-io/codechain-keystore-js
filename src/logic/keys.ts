@@ -116,3 +116,10 @@ export async function load(
 ): Promise<void> {
     return KeysModel.load(context, value, params);
 }
+
+export async function clear(
+    context: Context,
+    params: { keyType: KeyType }
+): Promise<void> {
+    return KeysModel.clear(context, params);
+}
