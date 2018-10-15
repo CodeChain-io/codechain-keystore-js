@@ -24,13 +24,15 @@ export interface KeyStore {
         key: Key;
         passphrase: string;
     }): Promise<PublicKey | null>;
-    createKey(params: { passphrase?: string }): Promise<Key>;
+    createKey(params: { passphrase?: string; meta?: string }): Promise<Key>;
     deleteKey(params: { key: Key }): Promise<boolean>;
     sign(params: {
         key: Key;
         message: string;
         passphrase: string;
     }): Promise<string>;
+
+    getMeta(params: { key: Key }): Promise<string>;
 
     save(): Promise<SecretStorage[]>;
     load(value: SecretStorage[]): Promise<void>;
@@ -168,7 +170,7 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
             return KeysLogic.getPublicKey(context, { ...params, keyType });
         },
 
-        createKey: (params: { passphrase?: string }) => {
+        createKey: (params: { passphrase?: string; meta?: string }) => {
             return KeysLogic.createKey(context, { ...params, keyType });
         },
 
@@ -178,6 +180,10 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
 
         sign: (params: { key: Key; message: string; passphrase: string }) => {
             return KeysLogic.sign(context, { ...params, keyType });
+        },
+
+        getMeta: (params: { key: Key }) => {
+            return KeysLogic.getMeta(context, { ...params, keyType });
         },
 
         save: () => {

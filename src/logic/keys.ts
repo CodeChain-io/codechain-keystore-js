@@ -55,7 +55,7 @@ export async function exportRawKey(
 
 export async function createKey(
     context: Context,
-    params: { passphrase?: string; keyType: KeyType }
+    params: { passphrase?: string; keyType: KeyType; meta?: string }
 ): Promise<Key> {
     const publicKey = await KeysModel.createKey(context, params);
     return keyFromPublicKey(params.keyType, publicKey);
@@ -89,6 +89,13 @@ export async function sign(
     }
 ): Promise<string> {
     return KeysModel.sign(context, params);
+}
+
+export function getMeta(
+    context: Context,
+    params: { key: Key; keyType: KeyType }
+): Promise<string> {
+    return KeysModel.getMeta(context, params);
 }
 
 export async function save(

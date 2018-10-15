@@ -190,6 +190,17 @@ export async function sign(
     return sig;
 }
 
+export async function getMeta(
+    context: Context,
+    params: { key: Key; keyType: KeyType }
+): Promise<string> {
+    const secret = await getSecretStorage(context, params);
+    if (secret == null) {
+        throw new KeystoreError(ErrorCode.NoSuchKey);
+    }
+    return secret.meta;
+}
+
 export async function save(
     context: Context,
     params: {

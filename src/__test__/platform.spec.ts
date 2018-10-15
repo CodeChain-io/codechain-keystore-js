@@ -195,4 +195,21 @@ describe("platform", () => {
         });
         expect(createdKey).toBe(importedKey);
     });
+
+    test("createWithoutMeta", async () => {
+        const createdKey = await cckey.platform.createKey({
+            passphrase: "satoshi"
+        });
+        const meta = await cckey.platform.getMeta({ key: createdKey });
+        expect(meta).toBe("{}");
+    });
+
+    test("createWithMeta", async () => {
+        const createdKey = await cckey.platform.createKey({
+            passphrase: "satoshi",
+            meta: '{"name": "test"}'
+        });
+        const meta = await cckey.platform.getMeta({ key: createdKey });
+        expect(meta).toBe('{"name": "test"}');
+    });
 });
