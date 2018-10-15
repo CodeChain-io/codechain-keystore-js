@@ -7,7 +7,7 @@ describe("volatile", () => {
     const params = { dbPath, dbType };
     beforeEach(async () => {
         const cckey = await CCKey.create(params);
-        cckey.close();
+        await cckey.close();
     });
 
     test("volatile db removes data on close", async () => {
