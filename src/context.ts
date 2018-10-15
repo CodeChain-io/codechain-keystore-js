@@ -39,6 +39,18 @@ function getAdapter(params: { dbPath: string; dbType: string }) {
     }
 }
 
+export async function storageExist(params: {
+    dbType: string;
+    dbPath: string;
+}): Promise<boolean> {
+    const db = await lowdb(getAdapter(params));
+    return (
+        db.get("meta").value() != null &&
+        db.get(getTableName(KeyType.Platform)).value() != null &&
+        db.get(getTableName(KeyType.Asset)).value() != null
+    );
+}
+
 export async function createContext(params: {
     dbType: string;
     dbPath: string;

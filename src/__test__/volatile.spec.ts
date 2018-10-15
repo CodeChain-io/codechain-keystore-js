@@ -23,4 +23,19 @@ describe("volatile", () => {
             cckey2.platform.getMeta({ key: createdKey })
         ).rejects.toThrow();
     });
+
+    test("false if not exist", async () => {
+        expect(await CCKey.exist(params)).toBe(false);
+    });
+
+    test("true if exist", async () => {
+        await CCKey.create(params);
+        expect(await CCKey.exist(params)).toBe(true);
+    });
+
+    test("doesn't exist if volatile db closed", async () => {
+        const cckey = await CCKey.create(params);
+        await cckey.close();
+        expect(await CCKey.exist(params)).toBe(false);
+    });
 });

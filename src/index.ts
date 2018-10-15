@@ -1,5 +1,5 @@
 import { getPublicFromPrivate } from "codechain-primitives";
-import { closeContext, Context, createContext } from "./context";
+import { closeContext, Context, createContext, storageExist } from "./context";
 import * as KeysLogic from "./logic/keys";
 import { decode } from "./logic/storage";
 import { KeyType } from "./model/keys";
@@ -54,6 +54,16 @@ class CCKey {
             dbPath
         });
         return new CCKey(context);
+    }
+    public static async exist(
+        params: {
+            dbType?: string;
+            dbPath?: string;
+        } = {}
+    ): Promise<boolean> {
+        const dbType = params.dbType || "persistent";
+        const dbPath = params.dbPath || "keystore.db";
+        return storageExist({ dbType, dbPath });
     }
 
     public platform: KeyStore = createKeyStore(this.context, KeyType.Platform);
