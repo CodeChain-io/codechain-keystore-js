@@ -14,7 +14,7 @@ export enum KeyType {
     Asset
 }
 
-function getTableName(type: KeyType) {
+export function getTableName(type: KeyType) {
     switch (type) {
         case KeyType.Platform:
             return "platform";
