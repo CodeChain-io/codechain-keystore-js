@@ -1,6 +1,5 @@
 import { CCKey } from "../index";
-import { keyFromPublicKey } from "../logic/keys";
-import { KeyType } from "../model/keys";
+import { keyFromPublicKey, KeyType } from "../model/keys";
 
 describe("platform", () => {
     let cckey: CCKey;

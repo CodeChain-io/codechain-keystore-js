@@ -1,8 +1,8 @@
 import { getPublicFromPrivate } from "codechain-primitives";
 import { closeContext, Context, createContext, storageExist } from "./context";
-import * as KeysLogic from "./logic/keys";
 import { decode } from "./logic/storage";
 import { initialize as dbInitialize } from "./model/initialize";
+import * as Keys from "./model/keys";
 import { KeyType } from "./model/keys";
 import { Key, PrivateKey, PublicKey, SecretStorage } from "./types";
 
@@ -109,7 +109,7 @@ class CCKey {
                 const passphrase = params.platformPassphrase[i];
                 const privateKey = decode(storage, passphrase);
                 const publicKey = getPublicFromPrivate(privateKey);
-                storage.address = KeysLogic.keyFromPublicKey(
+                storage.address = Keys.keyFromPublicKey(
                     KeyType.Platform,
                     publicKey
                 );
@@ -121,7 +121,7 @@ class CCKey {
                 const passphrase = params.assetPassphrase[i];
                 const privateKey = decode(storage, passphrase);
                 const publicKey = getPublicFromPrivate(privateKey);
-                storage.address = KeysLogic.keyFromPublicKey(
+                storage.address = Keys.keyFromPublicKey(
                     KeyType.Asset,
                     publicKey
                 );
@@ -163,7 +163,7 @@ class CCKey {
 function createKeyStore(context: Context, keyType: KeyType): KeyStore {
     return {
         getKeys: () => {
-            return KeysLogic.getKeys(context, { keyType });
+            return Keys.getKeys(context, { keyType });
         },
 
         importRaw: (params: {
@@ -171,51 +171,51 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
             passphrase?: string;
             meta?: string;
         }) => {
-            return KeysLogic.importRaw(context, { ...params, keyType });
+            return Keys.importRaw(context, { ...params, keyType });
         },
 
         exportKey: (params: { key: Key; passphrase: string }) => {
-            return KeysLogic.exportKey(context, { ...params, keyType });
+            return Keys.exportKey(context, { ...params, keyType });
         },
 
         importKey: (params: { secret: SecretStorage; passphrase: string }) => {
-            return KeysLogic.importKey(context, { ...params, keyType });
+            return Keys.importKey(context, { ...params, keyType });
         },
 
         exportRawKey: (params: { key: Key; passphrase: string }) => {
-            return KeysLogic.exportRawKey(context, { ...params, keyType });
+            return Keys.exportRawKey(context, { ...params, keyType });
         },
 
         getPublicKey: (params: { key: Key; passphrase: string }) => {
-            return KeysLogic.getPublicKey(context, { ...params, keyType });
+            return Keys.getPublicKey(context, { ...params, keyType });
         },
 
         createKey: (params: { passphrase?: string; meta?: string }) => {
-            return KeysLogic.createKey(context, { ...params, keyType });
+            return Keys.createKey(context, { ...params, keyType });
         },
 
         deleteKey: (params: { key: Key }) => {
-            return KeysLogic.deleteKey(context, { ...params, keyType });
+            return Keys.deleteKey(context, { ...params, keyType });
         },
 
         sign: (params: { key: Key; message: string; passphrase: string }) => {
-            return KeysLogic.sign(context, { ...params, keyType });
+            return Keys.sign(context, { ...params, keyType });
         },
 
         getMeta: (params: { key: Key }) => {
-            return KeysLogic.getMeta(context, { ...params, keyType });
+            return Keys.getMeta(context, { ...params, keyType });
         },
 
         save: () => {
-            return KeysLogic.save(context, { keyType });
+            return Keys.save(context, { keyType });
         },
 
         load: (value: SecretStorage[]) => {
-            return KeysLogic.load(context, value, { keyType });
+            return Keys.load(context, value, { keyType });
         },
 
         clear: () => {
-            return KeysLogic.clear(context, { keyType });
+            return Keys.clear(context, { keyType });
         }
     };
 }

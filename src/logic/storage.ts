@@ -24,10 +24,9 @@ import { blake256, getPublicFromPrivate } from "codechain-primitives";
 import * as crypto from "crypto";
 import * as uuid from "uuid";
 import { SecretStorage } from "..";
-import { KeyType } from "../model/keys";
+import { keyFromPublicKey, KeyType } from "../model/keys";
 import { PrivateKey } from "../types";
 import { ErrorCode, KeystoreError } from "./error";
-import { keyFromPublicKey } from "./keys";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
 export function encode(

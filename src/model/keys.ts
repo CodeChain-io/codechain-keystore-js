@@ -1,6 +1,9 @@
 import {
+    blake160,
     generatePrivateKey,
+    getAccountIdFromPublic,
     getPublicFromPrivate,
+    H160,
     signEcdsa
 } from "codechain-primitives";
 import * as _ from "lodash";
@@ -46,7 +49,7 @@ export async function getPublicKey(
     return decode(secret, params.passphrase);
 }
 
-export function importRaw(
+export async function importRaw(
     context: Context,
     params: {
         privateKey: PrivateKey;
@@ -54,8 +57,9 @@ export function importRaw(
         keyType: KeyType;
         meta?: string;
     }
-): Promise<PublicKey> {
-    return createPublicKeyFromPrivateKey(context, params);
+): Promise<Key> {
+    const publicKey = await createPublicKeyFromPrivateKey(context, params);
+    return keyFromPublicKey(params.keyType, publicKey);
 }
 
 export async function exportKey(
@@ -70,10 +74,10 @@ export async function exportKey(
     return secret;
 }
 
-export async function importKey(
+export function importKey(
     context: Context,
     params: { secret: SecretStorage; passphrase: string; keyType: KeyType }
-): Promise<PublicKey> {
+): Promise<Key> {
     const privateKey = decode(params.secret, params.passphrase);
     return importRaw(context, {
         privateKey,
@@ -83,15 +87,16 @@ export async function importKey(
     });
 }
 
-export function createKey(
+export async function createKey(
     context: Context,
     params: { passphrase?: string; keyType: KeyType; meta?: string }
-): Promise<PublicKey> {
+): Promise<Key> {
     const privateKey = generatePrivateKey();
-    return createPublicKeyFromPrivateKey(context, {
+    const publicKey = await createPublicKeyFromPrivateKey(context, {
         ...params,
         privateKey
     });
+    return keyFromPublicKey(params.keyType, publicKey);
 }
 
 async function createPublicKeyFromPrivateKey(
@@ -111,6 +116,17 @@ async function createPublicKeyFromPrivateKey(
     const rows = context.db.get(getTableName(params.keyType));
     await rows.push(secret).write();
     return publicKey;
+}
+
+export function keyFromPublicKey(type: KeyType, publicKey: PublicKey): Key {
+    switch (type) {
+        case KeyType.Platform:
+            return getAccountIdFromPublic(publicKey);
+        case KeyType.Asset:
+            return H160.ensure(blake160(publicKey)).value;
+        default:
+            throw new Error("Invalid key type");
+    }
 }
 
 export async function deleteKey(
