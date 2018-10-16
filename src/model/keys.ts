@@ -196,12 +196,11 @@ export async function sign(
 
     const privateKey = decode(secret, params.passphrase);
     const { r, s, v } = signEcdsa(params.message, privateKey);
-    const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
+    return `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
         v.toString(16),
         2,
         "0"
     )}`;
-    return sig;
 }
 
 export async function getMeta(
@@ -215,16 +214,16 @@ export async function getMeta(
     return secret.meta;
 }
 
-export async function save(
+export function save(
     context: Context,
     params: {
         keyType: KeyType;
     }
 ): Promise<SecretStorage[]> {
-    return await context.db.get(getTableName(params.keyType)).value();
+    return context.db.get(getTableName(params.keyType)).value();
 }
 
-export async function load(
+export function load(
     context: Context,
     value: SecretStorage[],
     params: {
