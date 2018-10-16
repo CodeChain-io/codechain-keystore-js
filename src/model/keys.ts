@@ -49,7 +49,7 @@ export async function getPublicKey(
     return decode(secret, params.passphrase);
 }
 
-export async function importRaw(
+export function importRaw(
     context: Context,
     params: {
         privateKey: PrivateKey;
@@ -58,8 +58,7 @@ export async function importRaw(
         meta?: string;
     }
 ): Promise<Key> {
-    const publicKey = await createPublicKeyFromPrivateKey(context, params);
-    return keyFromPublicKey(params.keyType, publicKey);
+    return createKeyFromPrivateKey(context, params);
 }
 
 export async function exportKey(
@@ -87,19 +86,18 @@ export function importKey(
     });
 }
 
-export async function createKey(
+export function createKey(
     context: Context,
     params: { passphrase?: string; keyType: KeyType; meta?: string }
 ): Promise<Key> {
     const privateKey = generatePrivateKey();
-    const publicKey = await createPublicKeyFromPrivateKey(context, {
+    return createKeyFromPrivateKey(context, {
         ...params,
         privateKey
     });
-    return keyFromPublicKey(params.keyType, publicKey);
 }
 
-async function createPublicKeyFromPrivateKey(
+async function createKeyFromPrivateKey(
     context: Context,
     params: {
         privateKey: PrivateKey;
@@ -107,7 +105,7 @@ async function createPublicKeyFromPrivateKey(
         keyType: KeyType;
         meta?: string;
     }
-): Promise<PublicKey> {
+): Promise<Key> {
     const publicKey = getPublicFromPrivate(params.privateKey);
     const passphrase = params.passphrase || "";
     const meta = params.meta || "{}";
@@ -115,7 +113,7 @@ async function createPublicKeyFromPrivateKey(
     const secret = encode(params.privateKey, params.keyType, passphrase, meta);
     const rows = context.db.get(getTableName(params.keyType));
     await rows.push(secret).write();
-    return publicKey;
+    return keyFromPublicKey(params.keyType, publicKey);
 }
 
 export function keyFromPublicKey(type: KeyType, publicKey: PublicKey): Key {
