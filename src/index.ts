@@ -1,10 +1,20 @@
 import { getPublicFromPrivate } from "codechain-primitives";
 import { closeContext, Context, createContext, storageExist } from "./context";
 import { decode } from "./logic/storage";
+import * as HDKeys from "./model/hdkeys";
 import { initialize as dbInitialize } from "./model/initialize";
 import * as Keys from "./model/keys";
-import { KeyType } from "./model/keys";
-import { Key, PrivateKey, PublicKey, SecretStorage } from "./types";
+
+import { KeyType } from "./model/keytypes";
+import {
+    Key,
+    PrivateKey,
+    PublicKey,
+    SecretSeedStorage,
+    SecretStorage,
+    Seed,
+    SeedHash
+} from "./types";
 
 export { SecretStorage };
 
@@ -41,6 +51,55 @@ export interface KeyStore {
     clear(): Promise<void>;
 }
 
+export interface HDWKeyStore {
+    getSeedHashes(): Promise<SeedHash[]>;
+    importSeed(params: {
+        secret: SecretSeedStorage;
+        passphrase?: string;
+    }): Promise<SeedHash>;
+    importRawSeed(params: {
+        seed: Seed;
+        passphrase?: string;
+        meta?: string;
+    }): Promise<SeedHash>;
+    exportSeed(params: {
+        seedHash: SeedHash;
+        passphrase: string;
+    }): Promise<SecretSeedStorage>;
+    exportRawSeed(params: {
+        seedHash: SeedHash;
+        passphrase: string;
+    }): Promise<Seed>;
+    createSeed(params: {
+        passphrase?: string;
+        meta?: string;
+    }): Promise<SeedHash>;
+    deleteSeed(params: { seedHash: SeedHash }): Promise<boolean>;
+    getPublicKeyFromSeed(params: {
+        seedHash: SeedHash;
+        path: string;
+        passphrase?: string;
+    }): Promise<PublicKey>;
+    getPrivateKeyFromSeed(params: {
+        seedHash: SeedHash;
+        path: string;
+        passphrase?: string;
+    }): Promise<PrivateKey>;
+    signFromSeed(params: {
+        seedHash: SeedHash;
+        path: string;
+        message: string;
+        passphrase: string;
+    }): Promise<string>;
+
+    getMeta(params: { seedHash: SeedHash }): Promise<string>;
+
+    save(): Promise<SecretSeedStorage[]>;
+    load(value: SecretSeedStorage[]): Promise<void>;
+
+    clear(): Promise<void>;
+}
+
 class CCKey {
     public static CCKey = CCKey;
 
@@ -71,6 +130,7 @@ class CCKey {
 
     public platform: KeyStore = createKeyStore(this.context, KeyType.Platform);
     public asset: KeyStore = createKeyStore(this.context, KeyType.Asset);
+    public hdwseed: HDWKeyStore = createHDKeyStore(this.context);
 
     private constructor(private context: Context) {}
 
@@ -130,7 +190,8 @@ class CCKey {
         return JSON.stringify({
             meta: "{}",
             platform,
-            asset
+            asset,
+            hdwseed: []
         });
     }
 
@@ -138,10 +199,12 @@ class CCKey {
         const meta = await this.getMeta();
         const platform = await this.platform.save();
         const asset = await this.asset.save();
+        const hdwseed = await this.hdwseed.save();
         return JSON.stringify({
             meta,
             platform,
-            asset
+            asset,
+            hdwseed
         });
     }
 
@@ -150,12 +213,14 @@ class CCKey {
         await this.setMeta(data.meta);
         await this.platform.load(data.platform);
         await this.asset.load(data.asset);
+        await this.hdwseed.load(data.hdwseed);
     }
 
     public async clear(): Promise<void> {
         await this.context.db.unset("meta").write();
         await this.platform.clear();
         await this.asset.clear();
+        await this.hdwseed.clear();
         await dbInitialize(this.context.db);
     }
 }
@@ -216,6 +281,86 @@ function createKeyStore(context: Context, keyType: KeyType): KeyStore {
 
         clear: () => {
             return Keys.clear(context, { keyType });
+        }
+    };
+}
+
+function createHDKeyStore(context: Context): HDWKeyStore {
+    return {
+        getSeedHashes: () => {
+            return HDKeys.getSeedHashes(context);
+        },
+
+        importSeed: (params: {
+            secret: SecretSeedStorage;
+            passphrase: string;
+        }) => {
+            return HDKeys.importSeed(context, params);
+        },
+
+        importRawSeed: (params: {
+            seed: Seed;
+            passphrase?: string;
+            meta?: string;
+        }) => {
+            return HDKeys.importRawSeed(context, params);
+        },
+
+        exportSeed: (params: { seedHash: SeedHash; passphrase: string }) => {
+            return HDKeys.exportSeed(context, params);
+        },
+
+        exportRawSeed: (params: { seedHash: SeedHash; passphrase: string }) => {
+            return HDKeys.exportRawSeed(context, params);
+        },
+
+        createSeed: (params: { passphrase?: string; meta?: string }) => {
+            return HDKeys.createSeed(context, params);
+        },
+
+        deleteSeed: (params: { seedHash: SeedHash }) => {
+            return HDKeys.deleteSeed(context, params);
+        },
+
+        getPublicKeyFromSeed: (params: {
+            seedHash: SeedHash;
+            path: string;
+            passphrase: string;
+        }) => {
+            return HDKeys.getPublicKeyFromSeed(context, params);
+        },
+
+        getPrivateKeyFromSeed: (params: {
+            seedHash: SeedHash;
+            path: string;
+            passphrase: string;
+        }) => {
+            return HDKeys.getPrivateKeyFromSeed(context, params);
+        },
+
+        signFromSeed: (params: {
+            seedHash: SeedHash;
+            path: string;
+            message: string;
+            passphrase: string;
+        }) => {
+            return HDKeys.signFromSeed(context, params);
+        },
+
+        getMeta: (params: { seedHash: SeedHash }) => {
+            return HDKeys.getMeta(context, params);
+        },
+
+        save: () => {
+            return HDKeys.save(context);
+        },
+
+        load: (value: SecretSeedStorage[]) => {
+            return HDKeys.load(context, value);
+        },
+
+        clear: () => {
+            return HDKeys.clear(context);
         }
     };
 }

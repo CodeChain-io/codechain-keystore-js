@@ -11,22 +11,7 @@ import { Context } from "../context";
 import { ErrorCode, KeystoreError } from "../logic/error";
 import { decode, encode } from "../logic/storage";
 import { Key, PrivateKey, PublicKey, SecretStorage } from "../types";
-
-export enum KeyType {
-    Platform,
-    Asset
-}
-
-export function getTableName(type: KeyType) {
-    switch (type) {
-        case KeyType.Platform:
-            return "platform";
-        case KeyType.Asset:
-            return "asset";
-        default:
-            throw new Error("Invalid key type");
-    }
-}
+import { getTableName, KeyType } from "./keytypes";
 
 export async function getKeys(
     context: Context,

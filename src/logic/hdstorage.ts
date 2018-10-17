@@ -20,24 +20,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-import { blake256, getPublicFromPrivate } from "codechain-primitives";
+import { blake256 } from "codechain-primitives";
 import * as crypto from "crypto";
 import * as uuid from "uuid";
-import { SecretStorage } from "..";
-import { keyFromPublicKey } from "../model/keys";
-import { KeyType } from "../model/keytypes";
-import { PrivateKey } from "../types";
+import { SecretSeedStorage, Seed } from "../types";
 import { ErrorCode, KeystoreError } from "./error";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
 export function encode(
-    privateKey: PrivateKey,
-    keyType: KeyType,
+    seed: Seed,
     passphrase: string,
     meta: string
-): SecretStorage {
-    const publicKey = getPublicFromPrivate(privateKey);
-    const address = keyFromPublicKey(keyType, publicKey);
+): SecretSeedStorage {
+    const seedHash = blake256(Buffer.from(seed, "hex"));
     const salt = crypto.randomBytes(32);
     const iv = crypto.randomBytes(16);
 
@@ -61,7 +56,7 @@ export function encode(
         iv
     );
     const ciphertext: any = Buffer.concat([
-        cipher.update(Buffer.from(privateKey, "hex")),
+        cipher.update(Buffer.from(seed, "hex")),
         cipher.final()
     ]);
 
@@ -87,12 +82,12 @@ export function encode(
             random: Array.prototype.slice.call(crypto.randomBytes(16), 0)
         }),
         version: 3,
-        address,
+        seedHash,
         meta
     };
 }
 
-export function decode(json: SecretStorage, passphrase: string): string {
+export function decode(json: SecretSeedStorage, passphrase: string): Seed {
     const kdfparams = json.crypto.kdfparams;
     const derivedKey = crypto.pbkdf2Sync(
         Buffer.from(passphrase),
@@ -111,8 +106,8 @@ export function decode(json: SecretStorage, passphrase: string): string {
         derivedKey.slice(0, 16),
         Buffer.from(json.crypto.cipherparams.iv, "hex")
     );
-    const privateKey = decipherBuffer(decipher, ciphertext);
-    return privateKey.toString("hex");
+    const seed = decipherBuffer(decipher, ciphertext);
+    return seed.toString("hex");
 }
 
 function decipherBuffer(decipher: crypto.Decipher, data: Buffer): Buffer {

@@ -16,17 +16,19 @@ describe("cckey", () => {
         const platformKey1 = await cckey.platform.createKey({ passphrase });
         const platformKey2 = await cckey.platform.createKey({ passphrase });
         const assetKey = await cckey.asset.createKey({ passphrase });
+        const seedHash = await cckey.hdwseed.createSeed({ passphrase });
         await cckey.setMeta("new meta data");
 
         const saveData = await cckey.save();
         const newCckey = await CCKey.create({ dbType: "in-memory" });
         await newCckey.load(saveData);
 
-        expect(await cckey.platform.getKeys()).toEqual([
+        expect(await newCckey.platform.getKeys()).toEqual([
             platformKey1,
             platformKey2
         ]);
-        expect(await cckey.asset.getKeys()).toEqual([assetKey]);
+        expect(await newCckey.asset.getKeys()).toEqual([assetKey]);
+        expect(await newCckey.hdwseed.getSeedHashes()).toEqual([seedHash]);
         expect(await newCckey.getMeta()).toBe("new meta data");
     });
 
