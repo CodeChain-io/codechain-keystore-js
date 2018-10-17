@@ -11,7 +11,7 @@ export { SecretStorage };
 export interface KeyStore {
     getKeys(): Promise<Key[]>;
     importRaw(params: {
-        privateKey: PublicKey;
+        privateKey: PrivateKey;
         passphrase?: string;
         meta?: string;
     }): Promise<Key>;
