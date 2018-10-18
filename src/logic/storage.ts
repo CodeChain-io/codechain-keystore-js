@@ -27,15 +27,16 @@ import { SecretStorage } from "..";
 import { keyFromPublicKey } from "../model/keys";
 import { KeyType } from "../model/keytypes";
 import { PrivateKey } from "../types";
+import { pbkdf2Async } from "./crypto";
 import { ErrorCode, KeystoreError } from "./error";
 
 // copy code from https://github.com/ethereumjs/ethereumjs-wallet/blob/4c7cbfc12e142491eb5acc98e612f079aabe092e/src/index.js#L109
-export function encode(
+export async function encode(
     privateKey: PrivateKey,
     keyType: KeyType,
     passphrase: string,
     meta: string
-): SecretStorage {
+): Promise<SecretStorage> {
     const publicKey = getPublicFromPrivate(privateKey);
     const address = keyFromPublicKey(keyType, publicKey);
     const salt = crypto.randomBytes(32);
@@ -48,7 +49,7 @@ export function encode(
         c: 262144,
         prf: "hmac-sha256"
     };
-    const derivedKey = crypto.pbkdf2Sync(
+    const derivedKey = await pbkdf2Async(
         Buffer.from(passphrase),
         salt,
         kdfparams.c,
@@ -92,9 +93,12 @@ export function encode(
     };
 }
 
-export function decode(json: SecretStorage, passphrase: string): string {
+export async function decode(
+    json: SecretStorage,
+    passphrase: string
+): Promise<string> {
     const kdfparams = json.crypto.kdfparams;
-    const derivedKey = crypto.pbkdf2Sync(
+    const derivedKey = await pbkdf2Async(
         Buffer.from(passphrase),
         Buffer.from(kdfparams.salt, "hex"),
         kdfparams.c,

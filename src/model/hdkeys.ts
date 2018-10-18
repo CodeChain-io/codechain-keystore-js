@@ -34,7 +34,7 @@ export async function exportSeed(
     if (secret == null) {
         throw new KeystoreError(ErrorCode.NoSuchSeedHash);
     }
-    decode(secret, params.passphrase);
+    await decode(secret, params.passphrase);
     return secret;
 }
 
@@ -49,14 +49,14 @@ export async function exportRawSeed(
     return decode(secret, params.passphrase);
 }
 
-export function importSeed(
+export async function importSeed(
     context: Context,
     params: {
         secret: SecretSeedStorage;
         passphrase: string;
     }
 ): Promise<SeedHash> {
-    const seed = decode(params.secret, params.passphrase);
+    const seed = await decode(params.secret, params.passphrase);
     return importSeedToDB(context, {
         seed,
         passphrase: params.passphrase,
@@ -112,7 +112,7 @@ export async function getPublicKeyFromSeed(
         throw new KeystoreError(ErrorCode.NoSuchSeedHash);
     }
 
-    const seed = decode(secret, params.passphrase);
+    const seed = await decode(secret, params.passphrase);
     const masterKey = HDPrivateKey.fromSeed(seed);
     const derivedKey = masterKey.derive(params.path);
     const privateKey = derivedKey.privateKey.toString();
@@ -134,7 +134,7 @@ export async function getPrivateKeyFromSeed(
         throw new KeystoreError(ErrorCode.NoSuchSeedHash);
     }
 
-    const seed = decode(secret, params.passphrase);
+    const seed = await decode(secret, params.passphrase);
     const masterKey = HDPrivateKey.fromSeed(seed);
     const derivedKey = masterKey.derive(params.path);
     const privateKey = derivedKey.privateKey.toString();
@@ -156,7 +156,7 @@ export async function signFromSeed(
         throw new KeystoreError(ErrorCode.NoSuchSeedHash);
     }
 
-    const seed = decode(secret, params.passphrase);
+    const seed = await decode(secret, params.passphrase);
     const masterKey = HDPrivateKey.fromSeed(seed);
     const derivedKey = masterKey.derive(params.path);
     const privateKey = derivedKey.privateKey.toString();
@@ -181,7 +181,7 @@ async function importSeedToDB(
     const passphrase = params.passphrase || "";
     const meta = params.meta || "{}";
 
-    const secret = encode(params.seed, passphrase, meta);
+    const secret = await encode(params.seed, passphrase, meta);
     const rows = context.db.get(getTableName(KeyType.HDWSeed));
     await rows.push(secret).write();
     return secret.seedHash;

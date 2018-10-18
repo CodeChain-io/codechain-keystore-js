@@ -36,7 +36,7 @@ describe("migrate", () => {
             }
         });
         const result = JSON.parse(
-            cckey.migrate(oldFormat, {
+            await cckey.migrate(oldFormat, {
                 platformPassphrase: ["a", "b"],
                 assetPassphrase: ["c"]
             })
