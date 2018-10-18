@@ -146,10 +146,10 @@ class CCKey {
         return closeContext(this.context);
     }
 
-    public migrate(
+    public async migrate(
         data: string,
         params: { assetPassphrase: string[]; platformPassphrase: string[] }
-    ): string {
+    ): Promise<string> {
         const old = JSON.parse(data);
         const platform_keys: any[] = old.platform_keys;
         const asset_keys: any[] = old.asset_keys;
@@ -163,30 +163,34 @@ class CCKey {
                 "The length of asset key doesn't match with the length of passphrase"
             );
         }
-        const platform = platform_keys
-            .map(key => JSON.parse(key.secret))
-            .map((storage, i) => {
-                const passphrase = params.platformPassphrase[i];
-                const privateKey = decode(storage, passphrase);
-                const publicKey = getPublicFromPrivate(privateKey);
-                storage.address = Keys.keyFromPublicKey(
-                    KeyType.Platform,
-                    publicKey
-                );
-                return storage;
-            });
-        const asset = asset_keys
-            .map(key => JSON.parse(key.secret))
-            .map((storage, i) => {
-                const passphrase = params.assetPassphrase[i];
-                const privateKey = decode(storage, passphrase);
-                const publicKey = getPublicFromPrivate(privateKey);
-                storage.address = Keys.keyFromPublicKey(
-                    KeyType.Asset,
-                    publicKey
-                );
-                return storage;
-            });
+        const platform = await Promise.all(
+            platform_keys
+                .map(key => JSON.parse(key.secret))
+                .map(async (storage, i) => {
+                    const passphrase = params.platformPassphrase[i];
+                    const privateKey = await decode(storage, passphrase);
+                    const publicKey = getPublicFromPrivate(privateKey);
+                    storage.address = Keys.keyFromPublicKey(
+                        KeyType.Platform,
+                        publicKey
+                    );
+                    return storage;
+                })
+        );
+        const asset = await Promise.all(
+            asset_keys
+                .map(key => JSON.parse(key.secret))
+                .map(async (storage, i) => {
+                    const passphrase = params.assetPassphrase[i];
+                    const privateKey = await decode(storage, passphrase);
+                    const publicKey = getPublicFromPrivate(privateKey);
+                    storage.address = Keys.keyFromPublicKey(
+                        KeyType.Asset,
+                        publicKey
+                    );
+                    return storage;
+                })
+        );
         return JSON.stringify({
             meta: "{}",
             platform,

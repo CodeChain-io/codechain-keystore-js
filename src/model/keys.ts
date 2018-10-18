@@ -54,15 +54,15 @@ export async function exportKey(
     if (secret == null) {
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
-    decode(secret, params.passphrase); // Throws an error if the passphrase is incorrect.
+    await decode(secret, params.passphrase); // Throws an error if the passphrase is incorrect.
     return secret;
 }
 
-export function importKey(
+export async function importKey(
     context: Context,
     params: { secret: SecretStorage; passphrase: string; keyType: KeyType }
 ): Promise<Key> {
-    const privateKey = decode(params.secret, params.passphrase);
+    const privateKey = await decode(params.secret, params.passphrase);
     return importRaw(context, {
         privateKey,
         passphrase: params.passphrase,
@@ -95,7 +95,12 @@ async function createKeyFromPrivateKey(
     const passphrase = params.passphrase || "";
     const meta = params.meta || "{}";
 
-    const secret = encode(params.privateKey, params.keyType, passphrase, meta);
+    const secret = await encode(
+        params.privateKey,
+        params.keyType,
+        passphrase,
+        meta
+    );
     const rows = context.db.get(getTableName(params.keyType));
     await rows.push(secret).write();
     return keyFromPublicKey(params.keyType, publicKey);
@@ -179,7 +184,7 @@ export async function sign(
         throw new KeystoreError(ErrorCode.NoSuchKey);
     }
 
-    const privateKey = decode(secret, params.passphrase);
+    const privateKey = await decode(secret, params.passphrase);
     const { r, s, v } = signEcdsa(params.message, privateKey);
     return `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
         v.toString(16),
