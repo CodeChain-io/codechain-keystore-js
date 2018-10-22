@@ -31,7 +31,8 @@ export async function getPublicKey(
     if (secret == null) {
         return null;
     }
-    return decode(secret, params.passphrase);
+    const privateKey = await decode(secret, params.passphrase);
+    return getPublicFromPrivate(privateKey);
 }
 
 export function importRaw(
