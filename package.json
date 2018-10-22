@@ -1,6 +1,6 @@
 {
   "name": "codechain-keystore",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "author": "CodeChain Team <codechain@kodebox.io>",
   "license": "ISC",
   "scripts": {
