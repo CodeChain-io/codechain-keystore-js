@@ -13,8 +13,12 @@ import {
 import { getTableName, KeyType } from "./keytypes";
 
 const bitcore = require("bitcore-lib");
-const HDPrivateKey = bitcore.HDPrivateKey;
+const Mnemonic = require("bitcore-mnemonic");
 const Random = bitcore.crypto.Random;
+
+// Seed: Seed(entropy) of a mnemonic code. Not a direct seed of a HD wallet.
+// See the definition:
+// https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
 export async function getSeedHashes(context: Context): Promise<SeedHash[]> {
     const rows: any = await context.db
@@ -49,6 +53,23 @@ export async function exportRawSeed(
     return decode(secret, params.passphrase);
 }
 
+export async function exportMnemonic(
+    context: Context,
+    params: {
+        seedHash: SeedHash;
+        passphrase: string;
+    }
+): Promise<string> {
+    const secret = await getSecretSeedStorage(context, params);
+    if (secret == null) {
+        throw new KeystoreError(ErrorCode.NoSuchSeedHash);
+    }
+    const seed = await decode(secret, params.passphrase);
+    const code = new Mnemonic(Buffer.from(seed, "hex"));
+
+    return code.toString();
+}
+
 export async function importSeed(
     context: Context,
     params: {
@@ -75,11 +96,63 @@ export function importRawSeed(
     return importSeedToDB(context, params);
 }
 
+export async function importMnemonic(
+    context: Context,
+    params: {
+        mnemonic: string;
+        passphrase?: string;
+        meta?: string;
+    }
+): Promise<SeedHash> {
+    // This code is from Mnemonic.isValid().
+    // There's no way to get a seed from a code in bitcore-mnemonic,
+    // (.toSeed() generates the seed of the HD wallet)
+    // so copied .isValid() code and reused buf variable to convert.
+    const { mnemonic } = params;
+    const wordlist = Mnemonic._getDictionary(mnemonic);
+
+    if (!wordlist) {
+        throw new KeystoreError(ErrorCode.WrongMnemonicString);
+    }
+
+    const words = mnemonic.split(" ");
+    let bin = "";
+    for (const word of words) {
+        const ind = wordlist.indexOf(word);
+        if (ind < 0) {
+            throw new KeystoreError(ErrorCode.WrongMnemonicString);
+        }
+        bin = bin + ("00000000000" + ind.toString(2)).slice(-11);
+    }
+
+    const cs = bin.length / 33;
+    const hashBits = bin.slice(-cs);
+    const nonhashBits = bin.slice(0, bin.length - cs);
+    const buf = new Buffer(nonhashBits.length / 8);
+    for (let i = 0; i < nonhashBits.length / 8; i++) {
+        buf.writeUInt8(parseInt(bin.slice(i * 8, (i + 1) * 8), 2), i);
+    }
+    const expectedHashBits = Mnemonic._entropyChecksum(buf);
+    if (expectedHashBits !== hashBits) {
+        throw new KeystoreError(ErrorCode.WrongMnemonicString);
+    }
+
+    const seed = buf.toString("hex");
+    return importSeedToDB(context, {
+        ...params,
+        seed
+    });
+}
+
 export async function createSeed(
     context: Context,
-    params: { passphrase?: string; meta?: string }
+    params: { seedLength?: number; passphrase?: string; meta?: string }
 ): Promise<SeedHash> {
-    const seed = Random.getRandomBuffer(64).toString("hex");
+    const { seedLength = 128 } = params;
+    if (seedLength % 32 !== 0 || seedLength < 128) {
+        throw new KeystoreError(ErrorCode.WrongSeedLength);
+    }
+    const seed = Random.getRandomBuffer(seedLength / 8).toString("hex");
     return importSeedToDB(context, {
         ...params,
         seed
@@ -99,28 +172,6 @@ export async function deleteSeed(
     return true;
 }
 
-export async function getPublicKeyFromSeed(
-    context: Context,
-    params: {
-        seedHash: SeedHash;
-        path: string;
-        passphrase: string;
-    }
-): Promise<PublicKey> {
-    const secret = await getSecretSeedStorage(context, params);
-    if (secret == null) {
-        throw new KeystoreError(ErrorCode.NoSuchSeedHash);
-    }
-
-    const seed = await decode(secret, params.passphrase);
-    const masterKey = HDPrivateKey.fromSeed(seed);
-    const derivedKey = masterKey.derive(params.path);
-    const privateKey = derivedKey.privateKey.toString();
-    const publicKey = getPublicFromPrivate(privateKey);
-
-    return publicKey;
-}
-
 export async function getPrivateKeyFromSeed(
     context: Context,
     params: {
@@ -135,11 +186,26 @@ export async function getPrivateKeyFromSeed(
     }
 
     const seed = await decode(secret, params.passphrase);
-    const masterKey = HDPrivateKey.fromSeed(seed);
+    const code = new Mnemonic(Buffer.from(seed, "hex"));
+    const masterKey = code.toHDPrivateKey();
     const derivedKey = masterKey.derive(params.path);
     const privateKey = derivedKey.privateKey.toString();
 
     return privateKey;
+}
+
+export async function getPublicKeyFromSeed(
+    context: Context,
+    params: {
+        seedHash: SeedHash;
+        path: string;
+        passphrase: string;
+    }
+): Promise<PublicKey> {
+    const privateKey = await getPrivateKeyFromSeed(context, params);
+    const publicKey = getPublicFromPrivate(privateKey);
+
+    return publicKey;
 }
 
 export async function signFromSeed(
@@ -151,15 +217,7 @@ export async function signFromSeed(
         passphrase: string;
     }
 ): Promise<string> {
-    const secret = await getSecretSeedStorage(context, params);
-    if (secret == null) {
-        throw new KeystoreError(ErrorCode.NoSuchSeedHash);
-    }
-
-    const seed = await decode(secret, params.passphrase);
-    const masterKey = HDPrivateKey.fromSeed(seed);
-    const derivedKey = masterKey.derive(params.path);
-    const privateKey = derivedKey.privateKey.toString();
+    const privateKey = await getPrivateKeyFromSeed(context, params);
 
     const { r, s, v } = signEcdsa(params.message, privateKey);
     const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(

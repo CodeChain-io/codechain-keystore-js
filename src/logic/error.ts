@@ -3,7 +3,9 @@ export enum ErrorCode {
     NoSuchKey = 1,
     NoSuchSeedHash = 2,
     DecryptionFailed = 3,
-    DBError = 4
+    DBError = 4,
+    WrongSeedLength = 5,
+    WrongMnemonicString = 6
 }
 
 export class KeystoreError extends Error {

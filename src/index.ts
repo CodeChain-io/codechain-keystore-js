@@ -62,6 +62,11 @@ export interface HDWKeyStore {
         passphrase?: string;
         meta?: string;
     }): Promise<SeedHash>;
+    importMnemonic(params: {
+        mnemonic: string;
+        passphrase?: string;
+        meta?: string;
+    }): Promise<SeedHash>;
     exportSeed(params: {
         seedHash: SeedHash;
         passphrase: string;
@@ -70,7 +75,12 @@ export interface HDWKeyStore {
         seedHash: SeedHash;
         passphrase: string;
     }): Promise<Seed>;
+    exportMnemonic(params: {
+        seedHash: SeedHash;
+        passphrase: string;
+    }): Promise<string>;
     createSeed(params: {
+        seedLength?: number;
         passphrase?: string;
         meta?: string;
     }): Promise<SeedHash>;
@@ -310,6 +320,14 @@ function createHDKeyStore(context: Context): HDWKeyStore {
             return HDKeys.importRawSeed(context, params);
         },
 
+        importMnemonic: (params: {
+            mnemonic: string;
+            passphrase?: string;
+            meta?: string;
+        }) => {
+            return HDKeys.importMnemonic(context, params);
+        },
+
         exportSeed: (params: { seedHash: SeedHash; passphrase: string }) => {
             return HDKeys.exportSeed(context, params);
         },
@@ -318,7 +336,18 @@ function createHDKeyStore(context: Context): HDWKeyStore {
             return HDKeys.exportRawSeed(context, params);
         },
 
-        createSeed: (params: { passphrase?: string; meta?: string }) => {
+        exportMnemonic: (params: {
+            seedHash: SeedHash;
+            passphrase: string;
+        }) => {
+            return HDKeys.exportMnemonic(context, params);
+        },
+
+        createSeed: (params: {
+            seedLength?: number;
+            passphrase?: string;
+            meta?: string;
+        }) => {
             return HDKeys.createSeed(context, params);
         },
 
