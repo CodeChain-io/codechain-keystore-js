@@ -12,9 +12,8 @@ import {
 } from "../types";
 import { getTableName, KeyType } from "./keytypes";
 
-const bitcore = require("bitcore-lib");
 const Mnemonic = require("bitcore-mnemonic");
-const Random = bitcore.crypto.Random;
+const Random = Mnemonic.bitcore.crypto.Random;
 
 // Seed: Seed(entropy) of a mnemonic code. Not a direct seed of a HD wallet.
 // See the definition:

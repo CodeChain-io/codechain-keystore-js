@@ -23,7 +23,6 @@
     "lib"
   ],
   "dependencies": {
-    "bitcore-lib": "^0.16.0",
     "bitcore-mnemonic": "^1.7.0",
     "codechain-primitives": "^0.3.0",
     "config": "^2.0.1",
