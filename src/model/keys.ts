@@ -102,7 +102,7 @@ async function createKeyFromPrivateKey(
         passphrase,
         meta
     );
-    const rows = context.db.get(getTableName(params.keyType));
+    const rows: any = context.db.get(getTableName(params.keyType));
     await rows.push(secret).write();
     return keyFromPublicKey(params.keyType, publicKey);
 }
@@ -135,7 +135,7 @@ async function getSecretStorage(
     context: Context,
     params: { key: Key; keyType: KeyType }
 ): Promise<SecretStorage | null> {
-    const collection = context.db.get(getTableName(params.keyType));
+    const collection: any = context.db.get(getTableName(params.keyType));
     const secret = await collection
         .find(
             (secretStorage: SecretStorage) =>
@@ -153,7 +153,7 @@ async function removeKey(
     context: Context,
     params: { key: Key; keyType: KeyType }
 ): Promise<void> {
-    const collection = context.db.get(getTableName(params.keyType));
+    const collection: any = context.db.get(getTableName(params.keyType));
     await collection
         .remove((secret: SecretStorage) => secret.address === params.key)
         .write();

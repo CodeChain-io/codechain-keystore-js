@@ -239,7 +239,7 @@ async function importSeedToDB(
     const meta = params.meta || "{}";
 
     const secret = await encode(params.seed, passphrase, meta);
-    const rows = context.db.get(getTableName(KeyType.HDWSeed));
+    const rows: any = context.db.get(getTableName(KeyType.HDWSeed));
     await rows.push(secret).write();
     return secret.seedHash;
 }
@@ -248,7 +248,7 @@ async function getSecretSeedStorage(
     context: Context,
     params: { seedHash: SeedHash }
 ): Promise<SecretSeedStorage | null> {
-    const collection = context.db.get(getTableName(KeyType.HDWSeed));
+    const collection: any = context.db.get(getTableName(KeyType.HDWSeed));
     const secret = await collection
         .find(
             (secretStorage: SecretSeedStorage) =>
@@ -266,7 +266,7 @@ async function removeKey(
     context: Context,
     params: { seedHash: SeedHash }
 ): Promise<void> {
-    const collection = context.db.get(getTableName(KeyType.HDWSeed));
+    const collection: any = context.db.get(getTableName(KeyType.HDWSeed));
     await collection
         .remove(
             (secret: SecretSeedStorage) => secret.seedHash === params.seedHash
