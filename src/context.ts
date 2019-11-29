@@ -4,7 +4,7 @@ import * as os from "os";
 import { clear as hdClear } from "./model/hdkeys";
 import { initialize as dbInitialize } from "./model/initialize";
 import { clear } from "./model/keys";
-import { getTableName, KeyType } from "./model/keytypes";
+import { KeyType } from "./model/keytypes";
 
 declare var window: any;
 function isBrowser() {
@@ -47,9 +47,9 @@ export async function storageExist(params: {
 }): Promise<boolean> {
     const db = await lowdb(getAdapter(params));
     const meta = db.get("meta").value();
-    const platform = db.get(getTableName(KeyType.Platform)).value();
-    const asset = db.get(getTableName(KeyType.Asset)).value();
-    const hdwseed = db.get(getTableName(KeyType.HDWSeed)).value();
+    const platform = db.get(KeyType.Platform).value();
+    const asset = db.get(KeyType.Asset).value();
+    const hdwseed = db.get(KeyType.HDWSeed).value();
 
     return (
         (meta != null && meta !== "") ||

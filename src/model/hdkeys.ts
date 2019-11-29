@@ -10,7 +10,7 @@ import {
     Seed,
     SeedHash
 } from "../types";
-import { getTableName, KeyType } from "./keytypes";
+import { KeyType } from "./keytypes";
 
 const Mnemonic = require("bitcore-mnemonic");
 const Random = Mnemonic.bitcore.crypto.Random;
@@ -20,9 +20,7 @@ const Random = Mnemonic.bitcore.crypto.Random;
 // https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki
 
 export async function getSeedHashes(context: Context): Promise<SeedHash[]> {
-    const rows: any = await context.db
-        .get(getTableName(KeyType.HDWSeed))
-        .value();
+    const rows: any = await context.db.get(KeyType.HDWSeed).value();
     return _.map(
         rows,
         (storage: SecretSeedStorage) => storage.seedHash
@@ -239,7 +237,7 @@ async function importSeedToDB(
     const meta = params.meta || "{}";
 
     const secret = await encode(params.seed, passphrase, meta);
-    const rows: any = context.db.get(getTableName(KeyType.HDWSeed));
+    const rows: any = context.db.get(KeyType.HDWSeed);
     await rows.push(secret).write();
     return secret.seedHash;
 }
@@ -248,7 +246,7 @@ async function getSecretSeedStorage(
     context: Context,
     params: { seedHash: SeedHash }
 ): Promise<SecretSeedStorage | null> {
-    const collection: any = context.db.get(getTableName(KeyType.HDWSeed));
+    const collection: any = context.db.get(KeyType.HDWSeed);
     const secret = await collection
         .find(
             (secretStorage: SecretSeedStorage) =>
@@ -266,7 +264,7 @@ async function removeKey(
     context: Context,
     params: { seedHash: SeedHash }
 ): Promise<void> {
-    const collection: any = context.db.get(getTableName(KeyType.HDWSeed));
+    const collection: any = context.db.get(KeyType.HDWSeed);
     await collection
         .remove(
             (secret: SecretSeedStorage) => secret.seedHash === params.seedHash
@@ -286,16 +284,16 @@ export async function getMeta(
 }
 
 export async function save(context: Context): Promise<SecretSeedStorage[]> {
-    return await context.db.get(getTableName(KeyType.HDWSeed)).value();
+    return await context.db.get(KeyType.HDWSeed).value();
 }
 
 export async function load(
     context: Context,
     value: SecretSeedStorage[]
 ): Promise<void> {
-    return context.db.set(getTableName(KeyType.HDWSeed), value).write();
+    return context.db.set(KeyType.HDWSeed, value).write();
 }
 
 export async function clear(context: Context): Promise<void> {
-    await context.db.unset(getTableName(KeyType.HDWSeed)).write();
+    await context.db.unset(KeyType.HDWSeed).write();
 }

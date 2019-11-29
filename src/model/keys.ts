@@ -11,15 +11,13 @@ import { Context } from "../context";
 import { ErrorCode, KeystoreError } from "../logic/error";
 import { decode, encode } from "../logic/storage";
 import { Key, PrivateKey, PublicKey, SecretStorage } from "../types";
-import { getTableName, KeyType } from "./keytypes";
+import { KeyType } from "./keytypes";
 
 export async function getKeys(
     context: Context,
     params: { keyType: KeyType }
 ): Promise<Key[]> {
-    const rows: any = await context.db
-        .get(getTableName(params.keyType))
-        .value();
+    const rows: any = await context.db.get(params.keyType).value();
     return _.map(rows, (secret: SecretStorage) => secret.address) as Key[];
 }
 
@@ -102,7 +100,7 @@ async function createKeyFromPrivateKey(
         passphrase,
         meta
     );
-    const rows: any = context.db.get(getTableName(params.keyType));
+    const rows: any = context.db.get(params.keyType);
     await rows.push(secret).write();
     return keyFromPublicKey(params.keyType, publicKey);
 }
@@ -135,7 +133,7 @@ async function getSecretStorage(
     context: Context,
     params: { key: Key; keyType: KeyType }
 ): Promise<SecretStorage | null> {
-    const collection: any = context.db.get(getTableName(params.keyType));
+    const collection: any = context.db.get(params.keyType);
     const secret = await collection
         .find(
             (secretStorage: SecretStorage) =>
@@ -153,7 +151,7 @@ async function removeKey(
     context: Context,
     params: { key: Key; keyType: KeyType }
 ): Promise<void> {
-    const collection: any = context.db.get(getTableName(params.keyType));
+    const collection: any = context.db.get(params.keyType);
     await collection
         .remove((secret: SecretStorage) => secret.address === params.key)
         .write();
@@ -211,7 +209,7 @@ export function save(
         keyType: KeyType;
     }
 ): Promise<SecretStorage[]> {
-    return context.db.get(getTableName(params.keyType)).value();
+    return context.db.get(params.keyType).value();
 }
 
 export function load(
@@ -221,12 +219,12 @@ export function load(
         keyType: KeyType;
     }
 ): Promise<void> {
-    return context.db.set(getTableName(params.keyType), value).write();
+    return context.db.set(params.keyType, value).write();
 }
 
 export async function clear(
     context: Context,
     params: { keyType: KeyType }
 ): Promise<void> {
-    await context.db.unset(getTableName(params.keyType)).write();
+    await context.db.unset(params.keyType).write();
 }
