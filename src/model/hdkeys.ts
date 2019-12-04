@@ -216,13 +216,7 @@ export async function signFromSeed(
 ): Promise<string> {
     const privateKey = await getPrivateKeyFromSeed(context, params);
 
-    const { r, s, v } = signEcdsa(params.message, privateKey);
-    const sig = `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
-        v.toString(16),
-        2,
-        "0"
-    )}`;
-    return sig;
+    return signEcdsa(params.message, privateKey);
 }
 
 async function importSeedToDB(

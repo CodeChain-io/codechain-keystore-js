@@ -24,7 +24,7 @@
   ],
   "dependencies": {
     "bitcore-mnemonic": "^8.6.0",
-    "codechain-primitives": "^0.3.0",
+    "codechain-primitives": "^1.0.0",
     "config": "^2.0.1",
     "lodash": "^4.17.10",
     "lowdb": "^1.0.0",

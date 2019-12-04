@@ -184,12 +184,7 @@ export async function sign(
     }
 
     const privateKey = await decode(secret, params.passphrase);
-    const { r, s, v } = signEcdsa(params.message, privateKey);
-    return `${_.padStart(r, 64, "0")}${_.padStart(s, 64, "0")}${_.padStart(
-        v.toString(16),
-        2,
-        "0"
-    )}`;
+    return signEcdsa(params.message, privateKey);
 }
 
 export async function getMeta(
